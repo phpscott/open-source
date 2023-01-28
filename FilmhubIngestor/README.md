@@ -108,54 +108,54 @@ The script was built to be run on the command line via a Linux system.
 The following modules are installed on the working Linux system:
 
 **[PHP Modules]**
-    - bz2
-    - calendar
-    - Core
-    - ctype
-    - curl
-    - date
-    - dom
-    - exif
-    - FFI
-    - fileinfo
-    - filter
-    - ftp
-    - gd
-    - gettext
-    - hash
-    - iconv
-    - json
-    - libxml
-    - mbstring
-    - mysqli
-    - mysqlnd
-    - openssl
-    - pcntl
-    - pcre
-    - PDO
-    - pdo_mysql
-    - Phar
-    - posix
-    - readline
-    - Reflection
-    - session
-    - shmop
-    - SimpleXML
-    - sockets
-    - sodium
-    - SPL
-    - standard
-    - sysvmsg
-    - sysvsem
-    - sysvshm
-    - tokenizer
-    - xml
-    - xmlreader
-    - xmlwriter
-    - xsl
-    - yaml
-    - Zend OPcache
-    - zip
-    - zlib
+- bz2
+- calendar
+- Core
+- ctype
+- curl
+- date
+- dom
+- exif
+- FFI
+- fileinfo
+- filter
+- ftp
+- gd
+- gettext
+- hash
+- iconv
+- json
+- libxml
+- mbstring
+- mysqli
+- mysqlnd
+- openssl
+- pcntl
+- pcre
+- PDO
+- pdo_mysql
+- Phar
+- posix
+- readline
+- Reflection
+- session
+- shmop
+- SimpleXML
+- sockets
+- sodium
+- SPL
+- standard
+- sysvmsg
+- sysvsem
+- sysvshm
+- tokenizer
+- xml
+- xmlreader
+- xmlwriter
+- xsl
+- yaml
+- Zend OPcache
+- zip
+- zlib
 **[Zend Modules]**
-    - Zend OPcache
+- Zend OPcache
