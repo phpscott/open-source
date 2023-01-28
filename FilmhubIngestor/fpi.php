@@ -1,12 +1,10 @@
-<?php
-ini_set('display_errors', 1);
+<?php ini_set('display_errors', 1);
 
 $GLOBALS['fpi']                = array();
 $GLOBALS['fpi']['stamp']       = date("YdmHis");
 $GLOBALS['fpi']['confdir']     = "conf/";
 
 /************* FUNCTIONS LIST ************************************************************/
-
 // load the json config. todo: allow different configs/paths to be loaded via param
 function loadConfig ($options)
 {
@@ -26,8 +24,6 @@ function loadConfig ($options)
         echo "\n\nERROR: No Config File Found\n\n"; exit;
     endif;
 }
-
-
 // read general data with switch
 function runThisAction ($type,$options=false)
 {
@@ -90,7 +86,6 @@ function runThisAction ($type,$options=false)
             break;
     }
 }
-
 // simple function to clean directories from previously run data
 function cleanHouse ()
 {
@@ -117,7 +112,6 @@ function cleanHouse ()
     }    
     
 }
-
 // function to build the mrss file, using xmlitems
 function buildMRSS ($folders)
 {
@@ -146,7 +140,6 @@ function buildMRSS ($folders)
         }
     }
 }
-
 // load an xml doc into a single scalar
 function loadXML ($folder)
 {
@@ -154,7 +147,6 @@ function loadXML ($folder)
     $path = $folder;
     return file_get_contents($path);
 }
-
 // parse xmlitems into the MRSS Build
 function parseXMLITEMS ($path)
 {
@@ -172,7 +164,6 @@ function parseXMLITEMS ($path)
         }
     }
 }
-
 // build a single xml item using mrss element names and include additional metadata for parsing later
 function buildMRSSItem ($singleItem)
 {
@@ -199,7 +190,6 @@ function buildMRSSItem ($singleItem)
             $keywordString = implode(",", $singleItem["media:keywords"]);
             $itemString .= '<media:keywords>'.$keywordString.'</media:keywords>';
         endif;
-
 
         if (array_key_exists("media:thumbnail:url", $singleItem["image"])) :
             $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : "" ;
@@ -259,18 +249,13 @@ function buildMRSSItem ($singleItem)
             //$singleItem["meta"]['avails']
             //$singleItem["meta"]['crew']
             //$singleItem["meta"]['cast']                
-
         }
-        
-        
-        
-        
-        
+
         $itemString .= '</media:content>';
     $itemString .= '</item>';  
     return $itemString;   
 }
-
+# load json file and convert to array
 function loadJSON ($file)
 {
     //echo "\tRunning: loadJSON()\n";
@@ -279,7 +264,7 @@ function loadJSON ($file)
     $objects = json_decode($objectJSON, 1);
     return $objects;
 }
-
+# generate an items list of files
 function generateItemsList ($path,$scope=".json")
 {
     echo "\tRunning: generateItemsList(): ".$path."\n";
@@ -298,8 +283,7 @@ function generateItemsList ($path,$scope=".json")
     }
     return false;
 }
-
-
+# remove this file
 function removeThisFile ($file)
 {
     echo "\tRunning: removeThisFile()\n";
@@ -314,7 +298,7 @@ function removeThisFile ($file)
     echo "\t".$thisFile." did Not Exist!\n";
     return true;
 }
-
+# build local dir list of files
 function buildLocalDirList ($dir)
 {
     echo "\tRunning: buildLocalDirList()\n";
@@ -327,8 +311,7 @@ function buildLocalDirList ($dir)
         writeThisData ($output,$GLOBALS['fpi']['dir']['DIRLIST'],$GLOBALS['fpi']['stamp'].".json");
     }
 }
-
-# Write the Iceberg data
+# Write the segment
 function writeThisSegment ($data,$filePath,$fileName)
 {
     //echo "\tRunning: writeThisSegment()\n";
@@ -354,7 +337,6 @@ function writeThisSegment ($data,$filePath,$fileName)
     echo "\tThe file $writeFile is not writable\n";
     return false;
 }
-
 # Write the Iceberg data
 function writeThisData ($data,$filePath,$fileName)
 {
@@ -384,9 +366,7 @@ function writeThisData ($data,$filePath,$fileName)
     echo "\tThe file $writeFile is not writable\n";
     return false;
 }
-
-
-# parse the RAW dirlist data
+# parse the RAW dirlist data: Todo run aws s3 command line and parse output
 function parseRawDIRLIST ($file, $dir)
 {
     echo "\tRunning: parseRawDIRLIST()\n";
@@ -415,7 +395,6 @@ function parseRawDIRLIST ($file, $dir)
     }
     return array("data"=>$dataArray,"skuids"=>$skuidsArray);
 }
-
 # parse the dirlist data
 function parseOBJECTS ($file, $uri)
 {
@@ -432,7 +411,6 @@ function parseOBJECTS ($file, $uri)
     }
     return $skuidsArray;
 }
-
 # parse the skuids
 function parseSKUIDS ($file, $uri)
 {
@@ -443,7 +421,6 @@ function parseSKUIDS ($file, $uri)
     $skuids = json_decode($skuidsJSON, 1);
     return $skuids;  
 }
-
 # parse assets and convert to xmlitems for individual valid skuids
 function parseASSETS ($skuids, $uri)
 {
@@ -465,26 +442,7 @@ function parseASSETS ($skuids, $uri)
         }
     } 
 }
-
-/*
-"crew": [{
-        "name": "Ian Hubert",
-        "credit": "writer"
-    }, {
-        "name": "Ton Roosendaal",
-        "credit": "producer"
-    }, {
-        "name": "Ian Hubert",
-        "credit": "director"
-    }, {
-        "name": "Joram Letwory",
-        "credit": "Original Music By"
-    }, {
-        "name": "Joris Kerbosch",
-        "credit": "Cinematography by"
-    }],
- */
-
+# get director from cast and stringify it
 function getDirector ($crews=false)
 {
     echo "\tRunning: getDirector()\n";
@@ -500,7 +458,7 @@ function getDirector ($crews=false)
     }
     return $directorString;
 }
-
+# get actors list and build string
 function getActors ($cast=false)
 {
     echo "\tRunning: getActors()\n";
@@ -512,7 +470,7 @@ function getActors ($cast=false)
     }
     return ($actorsString !== "") ? "Actors: ". rtrim($actorsString, ", ") : "";
 }
-
+# map single video to item (both single work and series episodes)
 function mapSingleToItem ($asset,$folder,$series=false)
 {
     echo "\tRunning: mapSingleToItem()\n";
@@ -525,7 +483,6 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $actorsString           = (array_key_exists("crew", $asset)) ? getActors($asset['crew']) : "";
     $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\r\\n" : "").$directorString.$actorsString;
 
-    
     // media
     $xmlitem['channel:title']           = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
@@ -650,8 +607,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
         }
     }
 }
-
-
+# map each items files back into the complete array 
 function mapItemFiles ($filesArray,$matchSkuID,$folder)
 {
     echo "\tRunning: mapItemFiles()\n";
@@ -705,7 +661,7 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
     }
     return false;
 }
-
+# extract the actual files from the yaml
 function extractFiles ($files,$matchSkuID,$series=false)
 {
     echo "\tRunning: extractFiles()\n";
@@ -783,8 +739,6 @@ function extractFiles ($files,$matchSkuID,$series=false)
     }
     return array("images"=>$imagesArray,"videos"=>$videosArray);    
 }
-
-
 # build the array of assets
 function buildSKUIDArray_deprecated ($skuid,$filetype,$skuidsArray,$nodeValue,$lastSlash)
 {
@@ -837,8 +791,7 @@ function buildSKUIDArray_deprecated ($skuid,$filetype,$skuidsArray,$nodeValue,$l
     } 
     return $skuidsArray;
 }
-
-// download the YAML and write to json
+# download the YAML and write to json
 function downloadYAML ($file, $skuid)
 {
     echo "\tRunning: downloadYAML()\n";
@@ -853,18 +806,7 @@ function downloadYAML ($file, $skuid)
     writeThisData ($yamlJson,$GLOBALS['fpi']['dir']['YMLJSON'],$writeFile);  
     writeThisData ($fileData,$GLOBALS['fpi']['dir']['YAML'],$writeYamlFile);  
 }
-
-
-
 /********* EOF FUNCTIONS LIST ************************************************************/
-
-
-
-
-
-
-
-
 
 
 /************* ACTIONS LIST ************************************************************/
