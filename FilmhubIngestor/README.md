@@ -60,8 +60,12 @@ The configuration is a JSON file that represents the paths/uris where content wi
 #### The following list of directories are Filmhub Genres (Main)
 
 These contain individual items for each Filmhub type (series/single work).
+
 See: conf/default.json for an example.
+
 Each of these should be cleaned on a full script run.
+
+This section was extracted directly from the conf/default.json example.
 
 - Each of these folders need to be created in the mrssimport folder created above:
     - "Action/Adventure": "mrssimport/actionadventure/",
@@ -88,7 +92,8 @@ Each of these should be cleaned on a full script run.
 #### Commands to run the script ####
 
 The script is run on the command line and requires 2 arguments to be passed with values.
-The arguements or parameters are:
+
+The arguments or parameters are:
 
 - `-c filename`: This is the name of the **configuration** JSON file without the extension: `-c default`
 - `-a action`: This is the **action** that should be performed when running the script:  `-a objects`
@@ -110,10 +115,14 @@ The following actions are available are must be run in order:
 
 > NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
 
+`php fpi.php -c default -a all > mylog.log`
+
 #### Modules Installed ####
 
 The script was built to be run on the command line via a Linux system.
+
 The following modules are installed on the working Linux system. 
+
 **Bolded** are items that should be verified is installed for this script to work.
 
 **[PHP Modules]**
