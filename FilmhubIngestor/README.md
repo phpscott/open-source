@@ -1,9 +1,9 @@
 # FILMHUB (FH) PACKAGE INGESTOR (FPI)
-## The following script will interate over a Filhub Delivery Package directory and parse each YAML into an MRSS item for ingestion.
-###### This script is available as is.
+## Filhmub > MRSS Transformer
+This script is available as is.
 
-## Author: Scott Cliburn
-## open-source/FilmhubIngestor
+- Author: Scott Cliburn
+- open-source/FilmhubIngestor
 
 **Script Flow:**
 
@@ -27,8 +27,8 @@ The configuration is a JSON file that represents the paths/uris where content wi
 - **Step 6:** Read in each genre directory and iterate over each file (represents a single video)
     - Build MRSS Import file compliant to zype.com
 
-### The following list of directories are required to be configured.
-#### Please note some directories need chmod 777 to be written to or cleaned
+#### The following list of directories are required to be configured.
+`Please note some directories need chmod 777 to be written to or cleaned`
 
 - **DIRLIST**
     - "dirlist/", keep untouched
@@ -53,8 +53,10 @@ The configuration is a JSON file that represents the paths/uris where content wi
 - **POSTINGEST**
     - "postingest/" // clean on full run
 
-### The following list of directories are Filmhub Genres (Main)
-##### Each of these should be cleaned on a full script run;
+#### The following list of directories are Filmhub Genres (Main)
+These contain individual items for each Filmhub type (series/single work).
+See: conf/default.json for an example.
+Each of these should be cleaned on a full script run;
 
 - "Action/Adventure": "mrssimport/actionadventure/",
 - "Animation": "mrssimport/animation/",
