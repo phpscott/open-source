@@ -236,6 +236,8 @@ function buildMRSSItem ($singleItem)
 
         if (array_key_exists("meta", $singleItem) && count($singleItem) >= 1)
         {
+            $itemString .= (array_key_exists("media_type", $singleItem["meta"])) ? '<meta name="media_type" value="'.$singleItem["meta"]["media_type"].'"/>' : '';
+            
             $itemString .= (array_key_exists("genre", $singleItem["meta"])) ? '<meta name="genre" value="'.$singleItem["meta"]["genre"].'"/>' : '';
             $itemString .= (array_key_exists("tagline", $singleItem["meta"])) ? '<meta name="tagline" value="'.$singleItem["meta"]["tagline"].'"/>' : '';
             $itemString .= (array_key_exists("copyright", $singleItem["meta"])) ? '<meta name="copyright" value="'.$singleItem["meta"]["copyright"].'"/>' : '';
@@ -478,7 +480,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     
     // extract director, actors into description.
     $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
-    $actorsString           = (array_key_exists("crew", $asset)) ? getActors($asset['crew']) : "";
+    $actorsString           = (array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
     $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\r\\n" : "").$directorString.$actorsString;
 
     // media
@@ -522,7 +524,10 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem["caption"] = array();
     $xmlitem["caption"]['media:subtitle:url']      = null;
     $xmlitem["caption"]['media:subtitle:type']     = "text/plain";
-    $xmlitem["caption"]['media:subtitle:lang']     = "en-us";    
+    $xmlitem["caption"]['media:subtitle:lang']     = "en-us";   
+    
+    
+    $xmlitem["meta"]['media_type'] = "single";
      
     if (false !== $series)
     {
@@ -532,10 +537,12 @@ function mapSingleToItem ($asset,$folder,$series=false)
         $episodes = $asset["episodes"];
         foreach ($episodes as $key => $episode)
         {
+            $xmlitem["meta"]['media_type'] = "episode";
+            
             $episodeSkuID                       = (array_key_exists("sku", $episode)) ? $episode['sku'] : null;
             $xmlitem['item:guid']               = $matchSkuID."-".$episodeSkuID;
             $xmlitem['media:title']             = (array_key_exists("name", $episode)) ? $episode['name'] : null;
-            $xmlitem['media:description']       = (array_key_exists("description", $episode)) ? $episode['description'] : null;
+            $xmlitem['media:description']       = (array_key_exists("description", $episode)) ? $episode['description'].$descAddOn : null;
             $xmlitem['media:episode']           = (array_key_exists("episode_number", $episode)) ? $episode['episode_number'] : null;
             $xmlitem['media:season']            = (array_key_exists("season_number", $episode)) ? $episode['season_number'] : null;
             $xmlitem["video"]['media:content:duration']  = (60*$asset['running_time']);
@@ -564,10 +571,12 @@ function mapSingleToItem ($asset,$folder,$series=false)
         // use this to build an item for the series and use the trailer as the main video
         if (false !== $hasTrailerVideo)
         {
+            $xmlitem["meta"]['media_type'] = "series";
+            
             $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
             
             $xmlitem['media:title']             = (array_key_exists("name", $asset)) ? $asset['name'] : null;
-            $xmlitem['media:description']       = (array_key_exists("description", $asset)) ? $asset['description'] : null;            
+            $xmlitem['media:description']       = (array_key_exists("description", $asset)) ? $asset['description'].$descAddOn : null;            
             
             $xmlitem['item:guid']               = $matchSkuID;
             $xmlitem['media:source_id']         = $matchSkuID;
@@ -594,6 +603,8 @@ function mapSingleToItem ($asset,$folder,$series=false)
             writeThisData ($xmlitem,$GLOBALS['fpi']['dir']['XMLITEMS'],$matchSkuID.$GLOBALS['fpi']['xmlItemFile']);
             if (false !== $hasTrailerVideo)
             {
+                $xmlitem["meta"]['media_type'] = "trailer";
+                
                 $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
                 $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" : "";
                 $xmlitem['media:source_id']         = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" :  "";
