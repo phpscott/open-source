@@ -105,15 +105,16 @@ The following actions are available are must be run in order:
 #### Modules Installed ####
 
 The script was built to be run on the command line via a Linux system.
-The following modules are installed on the working Linux system:
+The following modules are installed on the working Linux system. 
+**Bolded** are items that should be verified is installed for this script to work.
 
 **[PHP Modules]**
 - bz2
 - calendar
 - Core
 - ctype
-- curl
-- date
+- **curl**
+- **date**
 - dom
 - exif
 - FFI
@@ -124,8 +125,8 @@ The following modules are installed on the working Linux system:
 - gettext
 - hash
 - iconv
-- json
-- libxml
+- **json**
+- **libxml**
 - mbstring
 - mysqli
 - mysqlnd
@@ -153,9 +154,16 @@ The following modules are installed on the working Linux system:
 - xmlreader
 - xmlwriter
 - xsl
-- yaml
+- **yaml**
 - Zend OPcache
 - zip
 - zlib
+
 **[Zend Modules]**
 - Zend OPcache
+
+**Op Sys: `lsb_release -a`**
+- Distributor ID: Ubuntu
+- Description:    Ubuntu 22.04.1 LTS
+- Release:        22.04
+- Codename:       jammy
