@@ -348,13 +348,11 @@ function writeThisData ($data,$filePath,$fileName)
     // Let's make sure the file exists and is writable first.
     if (is_writable($GLOBALS['fpi']['data_folder'].$filePath)) 
     {
-        // that's where $somecontent will go when we fwrite() it.
         if (!$fp = fopen($writeFile, 'x+')) 
         {
              echo "\tCannot open file ($writeFile)\n";
              return false;
         }
-        // Write $somecontent to our opened file.
         if (fwrite($fp, $cleanData) === FALSE) 
         {
             echo "\tCannot write to file ($writeFile)\n";
@@ -843,11 +841,8 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("XMLITEMS"); sleep(1);
             runThisAction("BUILDMRSS"); sleep(1);
             break;
-        case "test":
-            //runThisAction("TEST");
-            break;
         default:
-            echo $foobar;
+            echo "\nERROR:\nNo Configuration Found\nOR\nNo Valid Action Found\n\n"; exit;
             exit;
     }
     echo "\n\n";
