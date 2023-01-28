@@ -1,6 +1,6 @@
 # FILMHUB (FH) PACKAGE INGESTOR (FPI)
-## Filhmub > MRSS Transformer
-This script is available as is.
+#### Filhmub > MRSS Transformer
+This script is available as is and without warranty.
 
 - Author: Scott Cliburn
 - open-source/FilmhubIngestor
@@ -25,7 +25,7 @@ The configuration is a JSON file that represents the paths/uris where content wi
     - Do this with trailers and series objects (parent to episodes) and build as individual items for mapping post ingest
 
 - **Step 6:** Read in each genre directory and iterate over each file (represents a single video)
-    - Build MRSS Import file compliant to zype.com
+    - Build MRSS Import file compliant to https://support.zype.com/hc/en-us/articles/115011037147-MRSS-Feed-Import
 
 #### The following list of directories are required to be configured.
 `Please note some directories need chmod 777 to be written to or cleaned`
@@ -76,3 +76,86 @@ Each of these should be cleaned on a full script run;
 - "Unknown": "mrssimport/unknown/",
 - "War": "mrssimport/war/",
 - "Western": "mrssimport/western/"
+
+### Running the Script:
+
+#### Commands to run the script ####
+
+The script is run on the command line and requires 2 arguments to be passed with values.
+The arguements or parameters are:
+
+- `-c filename`: This is the name of the **configuration** JSON file without the extension: `-c default`
+- `-a action`: This is the **action** that should be performed when running the script:  `-a objects`
+
+The following actions are available are must be run in order:
+
+1. "clean": This will clean all directories that are cleaned on a full run.
+2. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
+3. "objects": This will read the skuids and validate them, and pull down YAML files for each skuid (single works/series)
+4. "assets": This will parse the YAML files for each skuid and build json with mrss field names.
+5. "xmlitems": This will take the json with mrss field names and create actual MRSS <item>s and store them as XML.
+6. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
+
+- "all": This runs all the above events.
+
+**Example Run:**
+
+`php fpi.php -c default -a all`
+
+#### Modules Installed ####
+
+The script was built to be run on the command line via a Linux system.
+The following modules are installed on the working Linux system:
+
+**[PHP Modules]**
+    - bz2
+    - calendar
+    - Core
+    - ctype
+    - curl
+    - date
+    - dom
+    - exif
+    - FFI
+    - fileinfo
+    - filter
+    - ftp
+    - gd
+    - gettext
+    - hash
+    - iconv
+    - json
+    - libxml
+    - mbstring
+    - mysqli
+    - mysqlnd
+    - openssl
+    - pcntl
+    - pcre
+    - PDO
+    - pdo_mysql
+    - Phar
+    - posix
+    - readline
+    - Reflection
+    - session
+    - shmop
+    - SimpleXML
+    - sockets
+    - sodium
+    - SPL
+    - standard
+    - sysvmsg
+    - sysvsem
+    - sysvshm
+    - tokenizer
+    - xml
+    - xmlreader
+    - xmlwriter
+    - xsl
+    - yaml
+    - Zend OPcache
+    - zip
+    - zlib
+**[Zend Modules]**
+    - Zend OPcache
