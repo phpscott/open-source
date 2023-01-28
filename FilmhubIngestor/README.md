@@ -102,6 +102,8 @@ The following actions are available are must be run in order:
 
 `php fpi.php -c default -a all`
 
+> NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
+
 #### Modules Installed ####
 
 The script was built to be run on the command line via a Linux system.
