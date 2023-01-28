@@ -58,28 +58,30 @@ The configuration is a JSON file that represents the paths/uris where content wi
         - "postingest/" // clean on full run
 
 #### The following list of directories are Filmhub Genres (Main)
+
 These contain individual items for each Filmhub type (series/single work).
 See: conf/default.json for an example.
-Each of these should be cleaned on a full script run;
+Each of these should be cleaned on a full script run.
 
-- "Action/Adventure": "mrssimport/actionadventure/",
-- "Animation": "mrssimport/animation/",
-- "Comedy": "mrssimport/comedy/",
-- "Crime": "mrssimport/crime/",
-- "Documentary": "mrssimport/documentary/",
-- "Fantasy": "mrssimport/fantasy/",
-- "Horror": "mrssimport/horror/",
-- "Informational & Educational": "mrssimport/infoandedu/",
-- "Musical/Dance": "mrssimport/musicaldance/",
-- "Music & Performances": "mrssimport/musicperformance/",
-- "Mystery": "mrssimport/mystery/",
-- "Reality Show": "mrssimport/realityshow/",
-- "Sci-Fi": "mrssimport/scifi/",
-- "Sport & Fitness": "mrssimport/sportsfitness/",
-- "Thriller": "mrssimport/thriller/",
-- "Unknown": "mrssimport/unknown/",
-- "War": "mrssimport/war/",
-- "Western": "mrssimport/western/"
+- Each of these folders need to be created in the mrssimport folder created above:
+    - "Action/Adventure": "mrssimport/actionadventure/",
+    - "Animation": "mrssimport/animation/",
+    - "Comedy": "mrssimport/comedy/",
+    - "Crime": "mrssimport/crime/",
+    - "Documentary": "mrssimport/documentary/",
+    - "Fantasy": "mrssimport/fantasy/",
+    - "Horror": "mrssimport/horror/",
+    - "Informational & Educational": "mrssimport/infoandedu/",
+    - "Musical/Dance": "mrssimport/musicaldance/",
+    - "Music & Performances": "mrssimport/musicperformance/",
+    - "Mystery": "mrssimport/mystery/",
+    - "Reality Show": "mrssimport/realityshow/",
+    - "Sci-Fi": "mrssimport/scifi/",
+    - "Sport & Fitness": "mrssimport/sportsfitness/",
+    - "Thriller": "mrssimport/thriller/",
+    - "Unknown": "mrssimport/unknown/",
+    - "War": "mrssimport/war/",
+    - "Western": "mrssimport/western/"
 
 ### Running the Script:
 
