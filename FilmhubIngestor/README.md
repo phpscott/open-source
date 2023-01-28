@@ -30,28 +30,32 @@ The configuration is a JSON file that represents the paths/uris where content wi
 #### The following list of directories are required to be configured.
 `Please note some directories need chmod 777 to be written to or cleaned`
 
-- **DIRLIST**
-    - "dirlist/", keep untouched
-- **YMLJSON**
-    - "yaml_json/", // clean on full run
-- **YAML**
-    - "yaml/", // clean on full run
-- **XMLITEMS**
-    - "xmlitems/", // clean on full run
-- **XMLSERIESITEMS**
-    - "xmlitems_series/", // clean on full run
-- **XMLTRAILERITEMS**
-    - "xmlitems_trailers/", // clean on full run
-- **OBJECTS**
-    - "objects/", // clean on full run
-- **SKUIDS**
-    - "skuids/", // clean on full run
-- **BADSKUIDS**
-    - "badskuids/", // clean on full run
-- **MRSSIMPORT**
-    - "mrssimport/", // clean on full run
-- **POSTINGEST**
-    - "postingest/" // clean on full run
+- These directories should be placed in a directory called `data/default`.
+- The default folder will correlate directly to the default.json config file and should be named the same.
+- If your config file is "myconfig" you should name the data/default folder to data/myconfig.
+- Then create the following directories in that data/myconfig folder:
+    - **DIRLIST**
+        - "dirlist/", keep untouched
+    - **YMLJSON**
+        - "yaml_json/", // clean on full run
+    - **YAML**
+        - "yaml/", // clean on full run
+    - **XMLITEMS**
+        - "xmlitems/", // clean on full run
+    - **XMLSERIESITEMS**
+        - "xmlitems_series/", // clean on full run
+    - **XMLTRAILERITEMS**
+        - "xmlitems_trailers/", // clean on full run
+    - **OBJECTS**
+        - "objects/", // clean on full run
+    - **SKUIDS**
+        - "skuids/", // clean on full run
+    - **BADSKUIDS**
+        - "badskuids/", // clean on full run
+    - **MRSSIMPORT**
+        - "mrssimport/", // clean on full run
+    - **POSTINGEST**
+        - "postingest/" // clean on full run
 
 #### The following list of directories are Filmhub Genres (Main)
 These contain individual items for each Filmhub type (series/single work).
