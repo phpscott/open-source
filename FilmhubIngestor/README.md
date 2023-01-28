@@ -98,7 +98,7 @@ The arguments or parameters are:
 - `-c filename`: This is the name of the **configuration** JSON file without the extension: `-c default`
 - `-a action`: This is the **action** that should be performed when running the script:  `-a objects`
 
-The following actions are available are must be run in order:
+The following actions are available and must be run in order:
 
 1. "clean": This will clean all directories that are cleaned on a full run.
 2. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
@@ -123,7 +123,7 @@ The script was built to be run on the command line via a Linux system.
 
 The following modules are installed on the working Linux system. 
 
-**Bolded** are items that should be verified is installed for this script to work.
+**Bolded** are items that should be verified as installed for this script to work.
 
 **[PHP Modules]**
 - bz2

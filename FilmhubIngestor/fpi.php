@@ -5,7 +5,7 @@ $GLOBALS['fpi']['stamp']       = date("YdmHis");
 $GLOBALS['fpi']['confdir']     = "conf/";
 
 /************* FUNCTIONS LIST ************************************************************/
-// load the json config. todo: allow different configs/paths to be loaded via param
+# load the json config. todo: allow different configs/paths to be loaded via param
 function loadConfig ($options)
 {
     echo "\tRunning: loadConfig()\n";
@@ -24,7 +24,7 @@ function loadConfig ($options)
         echo "\n\nERROR: No Config File Found\n\n"; exit;
     endif;
 }
-// read general data with switch
+# read general data with switch
 function runThisAction ($type,$options=false)
 {
     echo "\nrunThisAction\n";
@@ -86,7 +86,7 @@ function runThisAction ($type,$options=false)
             break;
     }
 }
-// simple function to clean directories from previously run data
+# simple function to clean directories from previously run data
 function cleanHouse ()
 {
     $cleanHouse = array();
@@ -112,7 +112,7 @@ function cleanHouse ()
     }    
     
 }
-// function to build the mrss file, using xmlitems
+# function to build the mrss file, using xmlitems
 function buildMRSS ($folders)
 {
     echo "\tRunning: buildMRSS()\n";
@@ -140,14 +140,14 @@ function buildMRSS ($folders)
         }
     }
 }
-// load an xml doc into a single scalar
+# load an xml doc into a single scalar
 function loadXML ($folder)
 {
     //echo "\tRunning: loadXML()\n";
     $path = $folder;
     return file_get_contents($path);
 }
-// parse xmlitems into the MRSS Build
+# parse xmlitems into the MRSS Build
 function parseXMLITEMS ($path)
 {
     echo "\tRunning: parseXMLITEMS()\n";
@@ -164,7 +164,7 @@ function parseXMLITEMS ($path)
         }
     }
 }
-// build a single xml item using mrss element names and include additional metadata for parsing later
+# build a single xml item using mrss element names and include additional metadata for parsing later
 function buildMRSSItem ($singleItem)
 {
     echo "\tRunning: buildMRSSItem()\n";
@@ -575,7 +575,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
             
             $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
             
-            $xmlitem['media:title']             = (array_key_exists("name", $asset)) ? $asset['name'] : null;
+            $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
             $xmlitem['media:description']       = (array_key_exists("description", $asset)) ? $asset['description'].$descAddOn : null;            
             
             $xmlitem['item:guid']               = $matchSkuID;
@@ -604,6 +604,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
             if (false !== $hasTrailerVideo)
             {
                 $xmlitem["meta"]['media_type'] = "trailer";
+                $xmlitem["meta"]['trailer_for'] = $asset['sku'];
                 
                 $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
                 $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" : "";
