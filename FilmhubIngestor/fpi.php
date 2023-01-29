@@ -30,8 +30,11 @@ function runThisAction ($type,$options=false)
     echo "\nrunThisAction\n";
     switch ($type)
     {
+        case "BUILD":
+            buildHouse ();
+            break;
         case "CONFIG":
-            loadConfig($options);
+            loadConfig ($options);
             break;
         case "TEST":
             // do some checks on functions if they exist?
@@ -85,6 +88,82 @@ function runThisAction ($type,$options=false)
             buildMRSS ($GLOBALS['fpi']['genre_folders']);
             break;
     }
+}
+# simple function to build directories. requires 1 dir created and chmod 777: data
+function buildHouse ()
+{
+    $buildHouse = array();
+    echo "\tRunning: buildHouse()\n";
+    $output = null; $retval = null;
+    // create the main folder:
+    $sessDataFolder = $GLOBALS['fpi']['data_folder'];
+    echo "\tCreating Main Session Folder: ".$sessDataFolder."\n";
+    if (is_dir($sessDataFolder) === false):
+        exec('mkdir '.$sessDataFolder, $output, $retval);
+        $buildHouse['data_folder'] = $output;
+        if (is_dir($sessDataFolder) === false):
+            echo "\tUnable to create initial directory\n";
+            return false;
+        else:
+            echo "\tCHMOD Main Session Folder\n";
+            $output = null; $retval = null;
+            exec('chmod 0777 -f '.$sessDataFolder, $output, $retval);
+            $buildHouse['data_folder_chmod'] = $output;
+        endif;  
+    else:
+        echo "\tMain Session Folder Exists\n";
+        $buildHouse['data_folder'] = 'Folder Already Exists';
+    endif;
+    echo "\n";
+    echo "\tCreating Other Directories\n\n";
+    
+    // do all remaining non genre folders
+    foreach ($GLOBALS['fpi']['dir'] as $title => $folder)
+    {
+        echo "\tCreating ".$title." Folder\n";
+        $output = null; $retval = null;
+        $thisFolder = $GLOBALS['fpi']['data_folder'].$folder;
+        if (is_dir($thisFolder) === false):
+            exec('mkdir '.$thisFolder, $output, $retval);
+            $buildHouse[$title] = $output;
+            if (is_dir($thisFolder) === false):
+                echo "\tUnable to create ".$thisFolder." directory\n";
+            else:
+                echo "\tCHMOD ".$title." Folder\n";
+                $output = null; $retval = null;
+                exec('chmod 0777 -f '.$thisFolder, $output, $retval);
+                $buildHouse[$title] = $output;
+            endif;      
+        else:
+            echo "\t".$title." Folder Exists\n";
+            $buildHouse[$title] = 'Folder Already Exists';  
+        endif;
+    }      
+    
+    echo "\n";
+    echo "\tCreating Genre Directories\n\n";    
+    // now do genres
+    foreach ($GLOBALS['fpi']['genre_folders'] as $title => $folder)
+    {
+        echo "\tCreating ".$title." Folder\n";
+        $output = null; $retval = null;
+        $thisFolder = $GLOBALS['fpi']['data_folder'].$folder;
+        if (is_dir($thisFolder) === false):
+            exec('mkdir '.$thisFolder, $output, $retval);
+            $buildHouse[$title] = $output;
+            if (is_dir($thisFolder) === false):
+                echo "\tUnable to create ".$thisFolder." directory\n";
+            else:
+                echo "\tCHMOD ".$title." Folder\n";
+                $output = null; $retval = null;
+                exec('chmod 0777 -f '.$thisFolder, $output, $retval);
+                $buildHouse[$title] = $output;
+            endif;   
+        else:
+            echo "\t".$title." Folder Exists\n";
+            $buildHouse[$title] = 'Folder Already Exists';   
+        endif;
+    }  
 }
 # simple function to clean directories from previously run data
 function cleanHouse ()
@@ -250,7 +329,11 @@ function buildMRSSItem ($singleItem)
             //$singleItem["meta"]['ratings']
             //$singleItem["meta"]['avails']
             //$singleItem["meta"]['crew']
-            //$singleItem["meta"]['cast']                
+            //$singleItem["meta"]['cast']     
+            
+            // images
+            
+            // srt files
         }
 
         $itemString .= '</media:content>';
@@ -827,6 +910,9 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
     runThisAction("CONFIG",$options);
     switch ($options['a']) 
     { 
+        case "build":
+            runThisAction("BUILD"); // buildHouse
+            break;
         case "clean": //step 1
             runThisAction("CLEAN");
             break;
