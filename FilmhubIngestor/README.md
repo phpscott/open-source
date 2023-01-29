@@ -30,6 +30,8 @@ The configuration is a JSON file that represents the paths/uris where content wi
 #### The following list of directories are required to be configured.
 `Please note some directories need chmod 777 to be written to or cleaned`
 
+> UPDATE: A new "build" action is available to create the directories required in the data folder. This requires the data folder to exist and be writable: `chmod 777 data`
+
 - These directories should be placed in a directory called `data/default`.
 - The default folder will correlate directly to the default.json config file and should be named the same.
 - If your config file is "myconfig" you should name the data/default folder to data/myconfig.
@@ -108,6 +110,7 @@ The following actions are available and must be run in order:
 6. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
 
 - "all": This runs all the above events.
+- "build": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
 
 **Example Run:**
 
