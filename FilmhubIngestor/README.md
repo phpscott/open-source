@@ -30,7 +30,7 @@ The configuration is a JSON file that represents the paths/uris where content wi
 #### The following list of directories are required to be configured.
 `Please note some directories need chmod 777 to be written to or cleaned`
 
-> UPDATE: A new "build" action is available to create the directories required in the data folder. This requires the data folder to exist and be writable: `chmod 777 data`
+> UPDATE: A new "build" action is available to create the directories required in the data folder. This requires the data folder to exist and be writable: `chmod -f 0777 data`
 
 - These directories should be placed in a directory called `data/default`.
 - The default folder will correlate directly to the default.json config file and should be named the same.
@@ -109,16 +109,32 @@ The following actions are available and must be run in order:
 5. "xmlitems": This will take the json with mrss field names and create actual MRSS <item>s and store them as XML.
 6. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
 
-- "all": This runs all the above events.
+**Additional Actions**
+
+- "full": This runs all the above events.
+- "fulls3": This runs all the above events.
 - "build": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
+
+**S3 Actions**
+
+Some of the following actions will require the AWS CLI to be installed. 
+
+- "s3config": This will load the S3 Configuration. This is called with each additional action automatically. This is session based.
+- "sets3env": This will load the S3 Conf file and set the Environment Variables using that data.
+- "gets3env": This will load the current Env. Vars. into the GLOBAL `s3_env_config`.
+- "s3list": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
 
 **Example Run:**
 
-`php fpi.php -c default -a all`
+`php fpi.php -c default -a fulls3` - requires `new_data_onrun` to be set to `true`
+
+`php fpi.php -c default -a fulls3 -s 20230502111037` - ignores `new_data_onrun`
+
+`php fpi.php -c default -a full -s 20230502111037`
 
 > NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
 
-`php fpi.php -c default -a all > mylog.log`
+`php fpi.php -c default -a fulls3 > mylog.log`
 
 #### Modules Installed ####
 

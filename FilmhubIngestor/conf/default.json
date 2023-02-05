@@ -1,8 +1,10 @@
 {
+    "config_name": "default",
     "data_folder": "data/default/",
-    "root_prefix": "dir/zype-filmhub/",
+    "root_prefix": "dir/zype-filmhub/", 
+    "local_s3": "local",
     "http_root_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
-    "http_bucket_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
+    "http_uri_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
     "s3Bucket": "zype-filmhub",
     "dirLocation": "dir",
     "dirFile": "s3_dir.txt",
@@ -52,5 +54,6 @@
         "Unknown": "mrssimport/unknown/",
         "War": "mrssimport/war/",
         "Western": "mrssimport/western/"
-    }
+    },
+    "s3_config_dir": "s3conf/"
 }

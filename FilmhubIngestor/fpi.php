@@ -1,8 +1,12 @@
 <?php ini_set('display_errors', 1);
 
-$GLOBALS['fpi']                = array();
-$GLOBALS['fpi']['stamp']       = date("YdmHis");
-$GLOBALS['fpi']['confdir']     = "conf/";
+$GLOBALS['fpi']                     = array();
+$GLOBALS['fpi']['stamp']            = date("YdmHis");
+$GLOBALS['fpi']['confdir']          = "conf/";
+$GLOBALS['fpi']['new_data_onrun']   = false; // turn this off to set, so its turned in implicitly during run
+$GLOBALS['fpi']['main_data_folder'] = null;
+$GLOBALS['fpi']['pathispassed']     = false;
+$GLOBALS['fpi']['passedvalidlist']  = false;
 
 /************* FUNCTIONS LIST ************************************************************/
 # load the json config. todo: allow different configs/paths to be loaded via param
@@ -16,12 +20,38 @@ function loadConfig ($options)
         $config = json_decode($configJSON, 1);
         if (is_array($config) && array_key_exists("data_folder", $config)):
             $GLOBALS['fpi'] = $GLOBALS['fpi'] + $config;
+            $GLOBALS['fpi']['main_data_folder'] = $GLOBALS['fpi']['data_folder'];
             $GLOBALS['fpi']['options'] = $options;
+            $GLOBALS['fpi']['new_data_onrun'] = (is_array($config) && array_key_exists("new_data_onrun", $config) && $config['new_data_onrun'] === true) ? $config['new_data_onrun'] : $GLOBALS['fpi']['new_data_onrun'];         
+            if (array_key_exists("s", $options) && $options['s'] !== ""):
+                $path = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['sess_data_folder'].$options['s']."/";
+                $GLOBALS['fpi']['stamp'] = $options['s'];
+                $GLOBALS['fpi']['data_folder'] = $path;
+                $GLOBALS['fpi']['pathispassed'] = true;
+            endif;
         else:
             echo "\n\nERROR: No Data Folder Found\n\n"; exit;
         endif; 
     else:
         echo "\n\nERROR: No Config File Found\n\n"; exit;
+    endif;
+}
+# load the s3 json config. todo: allow different configs/paths to be loaded via param
+function loadS3Config ($options)
+{
+    echo "\tRunning: loadS3Config()\n";
+    $file           = $options['c'].".json"; 
+    $fileuri        = (is_file($GLOBALS['fpi']['s3_config_dir'].$file)) ? $GLOBALS['fpi']['s3_config_dir'].$file : false ;
+    if (false !== $fileuri):
+        $configJSON = file_get_contents($fileuri);
+        $config = json_decode($configJSON, 1);
+        if (is_array($config) && array_key_exists("s3_config", $config)):
+            $GLOBALS['fpi'] = $GLOBALS['fpi'] + $config;
+        else:
+            echo "\n\nERROR: No S3 Path Found\n\n"; exit;
+        endif; 
+    else:
+        echo "\n\nERROR: No S3 Config Found\n\n"; exit;
     endif;
 }
 # read general data with switch
@@ -35,6 +65,38 @@ function runThisAction ($type,$options=false)
             break;
         case "CONFIG":
             loadConfig ($options);
+            $dirFile = (false !== $GLOBALS['fpi']['pathispassed']) ? $GLOBALS['fpi']['stamp'].".txt" : $GLOBALS['fpi']['dirFile'];
+            $GLOBALS['fpi']['passedvalidlist'] = (false !== $dirFile && is_file($GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['dir']['DIRLIST'].$dirFile)) ? true : false;             
+            // set some conditionals for abending
+            switch ($options['a'])
+            {
+                case "all":
+                    if (false === $GLOBALS['fpi']['passedvalidlist']): 
+                        echo "\n\nYou Must Supply a Valid List, else Run Full\n\n"; exit;
+                    endif;
+                    break;
+                case "full":
+                    break;
+                case "fulls3":
+                    break;
+            }
+            break;
+        // s3
+        case "S3CONFIG":
+            loadS3Config ($options);
+            break;  
+        case "SETS3ENVVAR":
+            setS3EnvVars ();
+            break;
+        case "GETS3ENVVAR":
+            getS3EnvVars ();
+            break;
+        case "S3BUCKETLIST":
+            $bucket = (false !== $options) ? $options : $GLOBALS['fpi']['s3Bucket'];
+            listS3BucketFiles ($bucket);
+            break;
+        case "S3FILECP":
+            cpFileToS3Bucket ();
             break;
         case "TEST":
             // do some checks on functions if they exist?
@@ -46,13 +108,10 @@ function runThisAction ($type,$options=false)
         case "DIRLIST":
             echo "Step 2: Read Directory List File, Build SKUIDs & Paths, Create OBJECTS\n";
             $returnArray = false;
-            $dirFile = (is_array($GLOBALS['fpi']['options']) && !empty($GLOBALS['fpi']['options']) && count($GLOBALS['fpi']['options']) > 2) ? $GLOBALS['fpi']['options']['2'] : false;
-            if (false === $dirFile): 
-                echo "\tRAW Directory List File Found: ".$GLOBALS['fpi']['dirFile']."\n";
-                $returnArray = parseRawDIRLIST ($GLOBALS['fpi']['dirFile'], $GLOBALS['fpi']['dir']['DIRLIST']); 
-            elseif (false !== $dirFile && is_file($GLOBALS['fpi']['dir']['DIRLIST'].$dirFile)):
-                echo "\tLOCAL Directory List File Found: ".$dirFile."\n";
-                $returnArray = parseLocalDIRLIST ($dirFile, $GLOBALS['fpi']['dir']['DIRLIST']);
+
+            if ($GLOBALS['fpi']['passedvalidlist'] === true):
+                echo "\tDirectory List File Found: ".$GLOBALS['fpi']['stamp'].".txt"."\n";
+                $returnArray = parseRawDIRLIST ($GLOBALS['fpi']['stamp'].".txt", $GLOBALS['fpi']['dir']['DIRLIST']);
             else:
                  echo "\tNo Directory List File Found\n";
                  exit;
@@ -96,24 +155,86 @@ function buildHouse ()
     echo "\tRunning: buildHouse()\n";
     $output = null; $retval = null;
     // create the main folder:
-    $sessDataFolder = $GLOBALS['fpi']['data_folder'];
-    echo "\tCreating Main Session Folder: ".$sessDataFolder."\n";
-    if (is_dir($sessDataFolder) === false):
-        exec('mkdir '.$sessDataFolder, $output, $retval);
-        $buildHouse['data_folder'] = $output;
-        if (is_dir($sessDataFolder) === false):
+    $mainDataFolder = $GLOBALS['fpi']['main_data_folder'];
+    echo "\tCreating Main Session Folder: ".$mainDataFolder."\n";
+    if (is_dir($mainDataFolder) === false):
+        exec('mkdir '.$mainDataFolder, $output, $retval);
+        $buildHouse['main_data_folder'] = $output;
+        if (is_dir($mainDataFolder) === false):
             echo "\tUnable to create initial directory\n";
             return false;
         else:
             echo "\tCHMOD Main Session Folder\n";
             $output = null; $retval = null;
-            exec('chmod 0777 -f '.$sessDataFolder, $output, $retval);
-            $buildHouse['data_folder_chmod'] = $output;
+            exec('chmod 0777 -f '.$mainDataFolder, $output, $retval);
+            $buildHouse['main_data_folder_chmod'] = $output;
         endif;  
     else:
         echo "\tMain Session Folder Exists\n";
-        $buildHouse['data_folder'] = 'Folder Already Exists';
+        $buildHouse['main_data_folder'] = 'Folder Already Exists';
     endif;
+    
+    if (false !== $GLOBALS['fpi']['pathispassed']):
+        
+        echo "\tUsing Existing Session Folder: ".$GLOBALS['fpi']['options']['s']."\n";
+        $sessDataFolder = $GLOBALS['fpi']['data_folder'];
+        if (is_dir($sessDataFolder) !== false):
+            echo "\tExisting Session Folder: ".$GLOBALS['fpi']['options']['s']." FOUND\n";
+            //$GLOBALS['fpi']['data_folder'] = $stampDataFolder;
+            $GLOBALS['fpi']['stamp'] = $GLOBALS['fpi']['options']['s'];
+            $GLOBALS['fpi']['new_data_onrun'] = false;
+            cleanHouse ();
+        else:
+            echo "\tExisting Session Folder: ".$GLOBALS['fpi']['options']['s']." NOT FOUND\n";
+            echo "\n\nEXITing NOW\n\n";
+            exit;
+        endif;
+    endif;
+    
+    if ($GLOBALS['fpi']['new_data_onrun'] === true)
+    {
+        $sessAppend = $GLOBALS['fpi']['stamp']."/";
+        $sessDataFolder = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['sess_data_folder']; //.$sessAppend;
+        $stampDataFolder = $sessDataFolder.$sessAppend; //.$sessAppend;
+        
+        echo "\tCreating PerRun Session Folder: ".$sessDataFolder."\n";
+        
+        if (is_dir($sessDataFolder) === false):
+            exec('mkdir '.$sessDataFolder, $output, $retval);
+            $buildHouse['sess_data_folder'] = $output;
+            if (is_dir($sessDataFolder) === false):
+                echo "\tUnable to create Sessions directory\n";
+                return false;
+            else:
+                echo "\tCHMOD Sessions Folder\n";
+                $output = null; $retval = null;
+                exec('chmod 0777 -f '.$sessDataFolder, $output, $retval);
+                $buildHouse['sess_data_folder_chmod'] = $output;
+            endif;  
+        else:
+            echo "\tSessions Folder Exists\n";
+            $buildHouse['sess_data_folder'] = 'Sessions Folder Already Exists';
+        endif;
+        
+        if (is_dir($stampDataFolder) === false):
+            exec('mkdir '.$stampDataFolder, $output, $retval);
+            $buildHouse['sess_data_folder'] = $output;
+            if (is_dir($stampDataFolder) === false):
+                echo "\tUnable to create PerRun directory\n";
+                return false;
+            else:
+                echo "\tCHMOD PerRun Session Folder\n";
+                $output = null; $retval = null;
+                exec('chmod 0777 -f '.$stampDataFolder, $output, $retval);
+                $buildHouse['sess_data_folder_chmod'] = $output;
+            endif;  
+        else:
+            echo "\PerRun Session Folder Exists\n";
+            $buildHouse['sess_data_folder'] = 'PerRun Folder Already Exists';
+        endif;        
+    }
+    
+    
     echo "\n";
     echo "\tCreating Other Directories\n\n";
     
@@ -464,10 +585,14 @@ function parseRawDIRLIST ($file, $dir)
         $filetype = substr(trim($line), -5);
         if ($filetype == ".yaml")
         {
-            $nodes = explode(" ", trim($line));
+            $array = explode(" ", trim($line));
+            $results = array_filter($array,"cleanArrayFilter"); $nodes = array_values($results);   
             $theFourthIndex = (array_key_exists("3", $nodes)) ? $nodes['3'] : false;
-            $theFourthIndex = ltrim($theFourthIndex,$GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['root_prefix']);
-            $explodedSKU = (false !== $theFourthIndex) ? explode("_", $theFourthIndex) : false;
+            $theFourthIndex = str_replace($GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['root_prefix'], "", $theFourthIndex);
+
+            $explodedObject = (false !== $theFourthIndex) ? explode("/", $theFourthIndex) : false;
+            $explodedSKU = (false !== $explodedObject['0']) ? explode("_", $explodedObject['0']) : false;
+            
             $skuid = ($explodedSKU !== false && $explodedSKU['0'] !== "{SKU}") ? $explodedSKU['0'] : false; 
             if ($skuid !== "{SKU}" && false !== $skuid)
             {
@@ -489,7 +614,7 @@ function parseOBJECTS ($file, $uri)
     {
         $folderExplode = explode("/",$object);
         $folder = $folderExplode['0'];
-        downloadYAML ($GLOBALS['fpi']['http_bucket_prefix'].$object, $skuid);
+        downloadYAML ($GLOBALS['fpi']['http_uri_prefix'].$object, $skuid);
         $skuidsArray[$skuid] = $folder;       
     }
     return $skuidsArray;
@@ -608,8 +733,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem["caption"]['media:subtitle:url']      = null;
     $xmlitem["caption"]['media:subtitle:type']     = "text/plain";
     $xmlitem["caption"]['media:subtitle:lang']     = "en-us";   
-    
-    
+     
     $xmlitem["meta"]['media_type'] = "single";
      
     if (false !== $series)
@@ -807,9 +931,7 @@ function extractFiles ($files,$matchSkuID,$series=false)
         $filename = $file['filename'];
         $skuidExplode = ($filename !== "") ? explode("_", $filename) : false;
         // account for the series node prior to skuid
-        if (false !== $series):
-            $skuid = (false !== $skuidExplode) ? $skuidExplode['0'] : false;
-        endif;
+        $skuid = (false !== $skuidExplode && false !== $series) ? $skuidExplode['0'] : false;
         if (false !== $skuid)
         {
             $imagesArray[$skuid] = (array_key_exists($skuid, $imagesArray)) ? $imagesArray[$skuid] : array();
@@ -832,58 +954,6 @@ function extractFiles ($files,$matchSkuID,$series=false)
     }
     return array("images"=>$imagesArray,"videos"=>$videosArray);    
 }
-# build the array of assets
-function buildSKUIDArray_deprecated ($skuid,$filetype,$skuidsArray,$nodeValue,$lastSlash)
-{
-    echo "\tRunning: buildSKUIDArray_deprecated()\n";
-    if ($skuid !== false && !array_key_exists($skuid, $skuidsArray) && $skuid !== "")
-    {
-        $skuidsArray[$skuid] = array();
-        $skuidsArray[$skuid]['folder'] = "";
-        $skuidsArray[$skuid]['yaml'] = "";
-        $skuidsArray[$skuid]['image'] = array();
-        $skuidsArray[$skuid]['video'] = array();
-        $skuidsArray[$skuid]['trailer'] = array();
-        $skuidsArray[$skuid]['srt'] = array();
-    }
-    if ($lastSlash == "/" && $skuid !== "{SKU}" && false !== $skuid)
-    {
-        // this is a folder
-        $skuidsArray[$skuid]['folder'] = rtrim($nodeValue, "/");
-    }        
-    switch ($filetype)
-    {
-        case ".jpg":
-        case ".png":
-            $imgnodes = explode("_", trim($nodeValue));
-            $imgnodes = array_reverse($imgnodes);
-            $imgnode = str_replace($filetype,"",$imgnodes['0']);
-            
-            $skuidsArray[$skuid]['image'][$imgnode] = $nodeValue;
-            break;
-        case ".mov":
-        case ".mp4":
-            $file = str_replace($filetype, "", $nodeValue);
-            $is_trailer = substr($file, -8);
-            if ($is_trailer == "_trailer")
-            {
-                $skuidsArray[$skuid]['trailer'][] = $nodeValue;
-            }
-            else
-            {
-                $skuidsArray[$skuid]['video'][] = $nodeValue;
-            }
-            break;
-        case ".srt":
-            $skuidsArray[$skuid]['srt'][] = $nodeValue;
-            break;
-        case "yaml":
-        case ".yml":
-            $skuidsArray[$skuid]['yaml'] = $nodeValue;
-            break;                
-    } 
-    return $skuidsArray;
-}
 # download the YAML and write to json
 function downloadYAML ($file, $skuid)
 {
@@ -899,12 +969,96 @@ function downloadYAML ($file, $skuid)
     writeThisData ($yamlJson,$GLOBALS['fpi']['dir']['YMLJSON'],$writeFile);  
     writeThisData ($fileData,$GLOBALS['fpi']['dir']['YAML'],$writeYamlFile);  
 }
+
+
+
+/********* BOF S3 FUNCTIONS LIST **********************************************************/
+# get S3 Env. Vars for this script session only
+function getS3EnvVars ()
+{
+    echo "\tRunning: getS3EnvVarS()\n";
+    //echo $AWS_ACCESS_KEY_ID;
+    $exportCMDS = $GLOBALS['fpi']['s3_config'];
+    $envVars = array();
+    foreach ($exportCMDS as $key => $value)
+    {
+        $envVar = getS3EnvVar ($key);
+        if (false !== $envVar)
+        {
+            $envVars[$key] = $envVar;
+        }          
+    }
+    $GLOBALS['fpi']['s3_env_config'] = $envVars;
+}
+# get single S3 Var for this script session only
+function getS3EnvVar ($thisVar="AWS_DEFAULT_REGION")
+{
+    echo "\tRunning: getS3EnvVar()\n";
+    return getenv($thisVar);  
+}
+# set S3 Env. Vars for this script session only
+function setS3EnvVars ()
+{
+    echo "\tRunning: setS3EnvVars()\n";
+    $exportCMDS = $GLOBALS['fpi']['s3_config'];
+    foreach ($exportCMDS as $key => $value)
+    {
+        setS3EnvVar ($key, $value);         
+    } 
+}
+# set the single env var for this script session only
+function setS3EnvVar ($key="AWS_DEFAULT_OUTPUT", $value="json")
+{
+    echo "\tRunning: setS3EnvVar()\n";
+    $cmd = "$key=$value";
+    putenv($cmd);
+}
+# s3 functions
+function listS3BucketFiles($bucket) 
+{      
+    echo "\tRunning: listS3BucketFiles()\n";
+    // aws s3 ls s3://zype-filmhub --recursive --human-readable --summarize | grep '\.yaml$' 
+    $output=null; $retval=null;
+    //$cmd = "aws s3 ls s3://".$bucket." --recursive --human-readable --summarize | grep '\.yaml$'";
+    $cmd = "aws s3 ls s3://".$bucket." --recursive --summarize --page-size 100 | grep '\.yaml$'";
+    echo "\t".$cmd."\n";
+    exec($cmd, $output, $retval);
+    if (is_array($output) && !empty($output))
+    {
+        $list = implode("\n", $output);
+        $dirFile = $GLOBALS['fpi']['stamp'].".txt";
+        writeThisData ($list,$GLOBALS['fpi']['dir']['DIRLIST'],$dirFile);
+        // lets add the new file as the main list to use.
+        $GLOBALS['fpi']['dirFile'] = $dirFile;
+    }    
+}
+# filter array for empties
+function cleanArrayFilter ($var)
+{
+    return (trim($var) !== NULL && trim($var) !== FALSE && trim($var) !== "");
+}
+# cp file
+function cpFileToS3Bucket() 
+{                    
+    //aws s3 cp "$www_document_root/$asset" "s3://$cdnBucket/$asset" 
+    //--grants 
+    //  "read=uri=http://acs.amazonaws.com/groups/global/AllUsers" 
+    //  "full=uri=http://acs.amazonaws.com/groups/global/AuthenticatedUsers" 
+    //--region 
+    //  "$cf_s3_production_bucket_region"
+}
+/********* EOF S3 FUNCTIONS LIST **********************************************************/
+
 /********* EOF FUNCTIONS LIST ************************************************************/
 
 
 /************* ACTIONS LIST ************************************************************/
 // run the specific function/action based on the input
-$options = getopt("c:a:");
+$options = getopt("c:a:s:b:");
+// c == Config, name relates directly to saved conf/name.json
+// a == Action, correlates directly to the action to be run
+// b == Bucket, name of the bucket to use, superseding whats in configs (optional)
+// s == Session, file to use instead of running a full ls on a aws s3 bucket (optional)
 if (is_array($options) && !empty($options) && count($options) > 1 && $options['a'] !== false)
 {
     runThisAction("CONFIG",$options);
@@ -913,6 +1067,31 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         case "build":
             runThisAction("BUILD"); // buildHouse
             break;
+        
+        // start of S3 cases
+        case "s3config":
+            runThisAction("S3CONFIG",$options); // 
+            break;
+        case "sets3env":
+            runThisAction("S3CONFIG",$options);
+            runThisAction("SETS3ENVVAR"); // 
+            break;
+        case "gets3env":
+            runThisAction("S3CONFIG",$options);
+            runThisAction("GETS3ENVVAR"); // 
+            break;
+        case "s3list":
+            runThisAction("S3CONFIG",$options);
+            runThisAction("SETS3ENVVAR");
+            $bucket = (array_key_exists('b', $options)) ? $options['b'] : false;
+            runThisAction("S3BUCKETLIST",$bucket);
+            break;
+        case "s3cp":
+            runThisAction("S3CONFIG",$options);
+            runThisAction("SETS3ENVVAR");
+            runThisAction("S3FILECP"); 
+            break;
+        // individual items
         case "clean": //step 1
             runThisAction("CLEAN");
             break;
@@ -931,7 +1110,28 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         case "buildmrss": //step 6
             runThisAction("BUILDMRSS");
             break;
-        case "all":
+
+        
+        // compiled groups of cases
+        case "full": // creates new session, or uses the default config, or passed variable, if no list is config, and nothing passed it will end.
+            runThisAction("BUILD");
+            runThisAction("CLEAN"); sleep(1);
+            runThisAction("DIRLIST"); sleep(1);
+            runThisAction("OBJECTS"); sleep(1);
+            runThisAction("ASSETS"); sleep(1);
+            runThisAction("XMLITEMS"); sleep(1);
+            runThisAction("BUILDMRSS"); sleep(1);
+            break;
+        case "fulls3": // presumes an S3 run, but can be superceded with a valid -s value.
+            runThisAction("BUILD");
+            if (false === $GLOBALS['fpi']['passedvalidlist']):
+                runThisAction("S3CONFIG",$options);
+                runThisAction("SETS3ENVVAR");
+                $bucket = (array_key_exists('b', $options)) ? $options['b'] : false;
+                runThisAction("S3BUCKETLIST",$bucket);  sleep(2);
+            else:
+                echo "\n\nSKIPPING: S3 List Generation; Valid List File Found\n";
+            endif;
             runThisAction("CLEAN"); sleep(1);
             runThisAction("DIRLIST"); sleep(1);
             runThisAction("OBJECTS"); sleep(1);
@@ -940,7 +1140,7 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("BUILDMRSS"); sleep(1);
             break;
         default:
-            echo "\nERROR:\nNo Configuration Found\nOR\nNo Valid Action Found\n\n"; exit;
+            echo "\nERROR:\nNo Valid Action Found\n\n"; exit;
             exit;
     }
     echo "\n\n";
@@ -949,3 +1149,12 @@ else
 {
     echo "\nERROR:\nNo Configuration Found\nOR\nNo Valid Action Found\n\n"; exit;
 }
+
+
+/* 
+php fpi.php -c zype-filmhub -a all -s 20230502111037
+php fpi.php -c zype-filmhub -a full
+php fpi.php -c zype-filmhub -a full -s 20230502111037
+php fpi.php -c zype-filmhub -a fulls3
+php fpi.php -c zype-filmhub -a fulls3 -s 20230502111037
+*/
