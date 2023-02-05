@@ -99,6 +99,8 @@ The arguments or parameters are:
 
 - `-c filename`: This is the name of the **configuration** JSON file without the extension: `-c default`
 - `-a action`: This is the **action** that should be performed when running the script:  `-a objects`
+- `-s session`: This is the **session** that was previously run and will be resued:  `-a {stamp}`
+- `-b bucket`: This is the **bucket** param that can override the s3 conf:  `-b bucket name` 
 
 The following actions are available and must be run in order:
 

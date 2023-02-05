@@ -22,12 +22,17 @@ function loadConfig ($options)
             $GLOBALS['fpi'] = $GLOBALS['fpi'] + $config;
             $GLOBALS['fpi']['main_data_folder'] = $GLOBALS['fpi']['data_folder'];
             $GLOBALS['fpi']['options'] = $options;
-            $GLOBALS['fpi']['new_data_onrun'] = (is_array($config) && array_key_exists("new_data_onrun", $config) && $config['new_data_onrun'] === true) ? $config['new_data_onrun'] : $GLOBALS['fpi']['new_data_onrun'];         
+            $GLOBALS['fpi']['new_data_onrun'] = (is_array($config) && array_key_exists("new_data_onrun", $config) && $config['new_data_onrun'] === "true") ? true : $GLOBALS['fpi']['new_data_onrun'];         
             if (array_key_exists("s", $options) && $options['s'] !== ""):
                 $path = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['sess_data_folder'].$options['s']."/";
                 $GLOBALS['fpi']['stamp'] = $options['s'];
                 $GLOBALS['fpi']['data_folder'] = $path;
                 $GLOBALS['fpi']['pathispassed'] = true;
+            elseif ($GLOBALS['fpi']['new_data_onrun'] === true):
+                $path = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['sess_data_folder'].$GLOBALS['fpi']['stamp']."/";
+                $GLOBALS['fpi']['data_folder'] = $path;
+            else:
+                $GLOBALS['fpi']['stamp'] = (array_key_exists("dirFile", $GLOBALS['fpi']) && $GLOBALS['fpi']['dirFile'] !== "") ? $GLOBALS['fpi']['dirFile'] : $GLOBALS['fpi']['stamp'] ;
             endif;
         else:
             echo "\n\nERROR: No Data Folder Found\n\n"; exit;
@@ -35,6 +40,7 @@ function loadConfig ($options)
     else:
         echo "\n\nERROR: No Config File Found\n\n"; exit;
     endif;
+    //print_r($GLOBALS['fpi']); exit;
 }
 # load the s3 json config. todo: allow different configs/paths to be loaded via param
 function loadS3Config ($options)
@@ -67,7 +73,8 @@ function runThisAction ($type,$options=false)
             loadConfig ($options);
             $dirFile = (false !== $GLOBALS['fpi']['pathispassed']) ? $GLOBALS['fpi']['stamp'].".txt" : $GLOBALS['fpi']['dirFile'];
             $GLOBALS['fpi']['passedvalidlist'] = (false !== $dirFile && is_file($GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['dir']['DIRLIST'].$dirFile)) ? true : false;             
-            // set some conditionals for abending
+            
+            // set some conditionals for abending, just incase it gets this far.
             switch ($options['a'])
             {
                 case "all":
@@ -76,8 +83,12 @@ function runThisAction ($type,$options=false)
                     endif;
                     break;
                 case "full":
-                    break;
-                case "fulls3":
+                    $hasDir = ($GLOBALS['fpi']['dirFile'] !== "") ? true : false;
+                    $hasSess = (array_key_exists("s", $GLOBALS['fpi']['options'])) ? true : false;
+                    $new_data_onrun = $GLOBALS['fpi']['new_data_onrun'];
+                    if (false === $hasDir && false === $hasSess): 
+                        echo "\n\nYou Must Supply a Valid List either by Parameter -s or config 'dirFile', else Run FullS3\n\n"; exit;
+                    endif;
                     break;
             }
             break;
@@ -107,15 +118,7 @@ function runThisAction ($type,$options=false)
             break;
         case "DIRLIST":
             echo "Step 2: Read Directory List File, Build SKUIDs & Paths, Create OBJECTS\n";
-            $returnArray = false;
-
-            if ($GLOBALS['fpi']['passedvalidlist'] === true):
-                echo "\tDirectory List File Found: ".$GLOBALS['fpi']['stamp'].".txt"."\n";
-                $returnArray = parseRawDIRLIST ($GLOBALS['fpi']['stamp'].".txt", $GLOBALS['fpi']['dir']['DIRLIST']);
-            else:
-                 echo "\tNo Directory List File Found\n";
-                 exit;
-            endif;  
+            $returnArray = parseRawDIRLIST ($GLOBALS['fpi']['stamp'].".txt", $GLOBALS['fpi']['dir']['DIRLIST']);
             // write objects
             writeThisData ($returnArray["data"],$GLOBALS['fpi']['dir']['OBJECTS'],$GLOBALS['fpi']['objectsFile']); 
             // write skuids
@@ -174,15 +177,31 @@ function buildHouse ()
         $buildHouse['main_data_folder'] = 'Folder Already Exists';
     endif;
     
+    $sessFolder = $mainDataFolder.$GLOBALS['fpi']['sess_data_folder']; //sess_data_folder
+    if (is_dir($sessFolder) === false):
+        exec('mkdir '.$sessFolder, $output, $retval);
+        $buildHouse['sessions_folder'] = $output;
+        if (is_dir($sessFolder) === false):
+            echo "\tUnable to create sessions directory\n";
+            return false;
+        else:
+            echo "\tCHMOD Sessions Folder\n";
+            $output = null; $retval = null;
+            exec('chmod 0777 -f '.$sessFolder, $output, $retval);
+            $buildHouse['sessions_folder'] = $output;
+        endif;  
+    else:
+        echo "\tSessions Folder Exists\n";
+        $buildHouse['sessions_folder'] = 'Folder Already Exists';
+    endif;    
+    
     if (false !== $GLOBALS['fpi']['pathispassed']):
-        
         echo "\tUsing Existing Session Folder: ".$GLOBALS['fpi']['options']['s']."\n";
         $sessDataFolder = $GLOBALS['fpi']['data_folder'];
         if (is_dir($sessDataFolder) !== false):
             echo "\tExisting Session Folder: ".$GLOBALS['fpi']['options']['s']." FOUND\n";
-            //$GLOBALS['fpi']['data_folder'] = $stampDataFolder;
             $GLOBALS['fpi']['stamp'] = $GLOBALS['fpi']['options']['s'];
-            $GLOBALS['fpi']['new_data_onrun'] = false;
+            $GLOBALS['fpi']['new_data_onrun'] = false; // skip the next iteration below
             cleanHouse ();
         else:
             echo "\tExisting Session Folder: ".$GLOBALS['fpi']['options']['s']." NOT FOUND\n";
@@ -191,12 +210,11 @@ function buildHouse ()
         endif;
     endif;
     
+    // this gets skipped if pathispassed is conditioned
     if ($GLOBALS['fpi']['new_data_onrun'] === true)
     {
         $sessAppend = $GLOBALS['fpi']['stamp']."/";
-        $sessDataFolder = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['sess_data_folder']; //.$sessAppend;
-        $stampDataFolder = $sessDataFolder.$sessAppend; //.$sessAppend;
-        
+        $sessDataFolder = $GLOBALS['fpi']['data_folder'];
         echo "\tCreating PerRun Session Folder: ".$sessDataFolder."\n";
         
         if (is_dir($sessDataFolder) === false):
@@ -214,24 +232,7 @@ function buildHouse ()
         else:
             echo "\tSessions Folder Exists\n";
             $buildHouse['sess_data_folder'] = 'Sessions Folder Already Exists';
-        endif;
-        
-        if (is_dir($stampDataFolder) === false):
-            exec('mkdir '.$stampDataFolder, $output, $retval);
-            $buildHouse['sess_data_folder'] = $output;
-            if (is_dir($stampDataFolder) === false):
-                echo "\tUnable to create PerRun directory\n";
-                return false;
-            else:
-                echo "\tCHMOD PerRun Session Folder\n";
-                $output = null; $retval = null;
-                exec('chmod 0777 -f '.$stampDataFolder, $output, $retval);
-                $buildHouse['sess_data_folder_chmod'] = $output;
-            endif;  
-        else:
-            echo "\PerRun Session Folder Exists\n";
-            $buildHouse['sess_data_folder'] = 'PerRun Folder Already Exists';
-        endif;        
+        endif;    
     }
     
     
@@ -574,6 +575,7 @@ function writeThisData ($data,$filePath,$fileName)
 function parseRawDIRLIST ($file, $dir)
 {
     echo "\tRunning: parseRawDIRLIST()\n";
+
     # Iterate over the file in DIRLIST
     $path = $GLOBALS['fpi']['data_folder'].$dir;
     $lines = file($path.$file);
@@ -1112,7 +1114,7 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             break;
 
         
-        // compiled groups of cases
+        // compiled groups of cases    
         case "full": // creates new session, or uses the default config, or passed variable, if no list is config, and nothing passed it will end.
             runThisAction("BUILD");
             runThisAction("CLEAN"); sleep(1);
