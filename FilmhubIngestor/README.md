@@ -12,6 +12,9 @@ The configuration is a JSON file that represents the paths/uris where content wi
 
 - **Step 1:** Read in a directory list of the aws bucket, saved as a flat file to: dirFile in DIRLIST
 
+> UPDATE: This script can now be configured to use the AWS CLI to generate the dirFile.
+> See S3 Actions below and Examples Runs for more details.
+
 - **Step 2:** Iterate over the directory list and identify YAML files.
 
 - **Step 3:** Extract/Download YAML file and store locally as YAML and JSON, build objects file with yaml ids/file paths
@@ -99,7 +102,7 @@ The arguments or parameters are:
 
 - `-c filename`: This is the name of the **configuration** JSON file without the extension: `-c default`
 - `-a action`: This is the **action** that should be performed when running the script:  `-a objects`
-- `-s session`: This is the **session** that was previously run and will be resued:  `-a {stamp}`
+- `-s session`: This is the **session** that was previously run and will be resued:  `-s session`
 - `-b bucket`: This is the **bucket** param that can override the s3 conf:  `-b bucket name` 
 
 The following actions are available and must be run in order:
@@ -107,8 +110,8 @@ The following actions are available and must be run in order:
 1. "clean": This will clean all directories that are cleaned on a full run.
 2. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
 3. "objects": This will read the skuids and validate them, and pull down YAML files for each skuid (single works/series)
-4. "assets": This will parse the YAML files for each skuid and build json with mrss field names.
-5. "xmlitems": This will take the json with mrss field names and create actual MRSS <item>s and store them as XML.
+4. "assets": This will parse the YAML files for each skuid and build JSON with mrss field names.
+5. "xmlitems": This will take the JSON with MRSS field names and create actual MRSS <item>s and store them as XML.
 6. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
 
 **Additional Actions**
@@ -126,7 +129,7 @@ Some of the following actions will require the AWS CLI to be installed.
 - "gets3env": This will load the current Env. Vars. into the GLOBAL `s3_env_config`.
 - "s3list": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
 
-**Example Run:**
+**Example Runs:**
 
 `php fpi.php -c default -a fulls3` - requires `new_data_onrun` to be set to `true`
 
