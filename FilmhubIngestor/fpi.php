@@ -135,6 +135,7 @@ function runThisAction ($type,$options=false)
             echo "Step 4: Read ASSETS Files, Create JSON ready for XML (XMLITEMS)\n";
             // parse skuids and parse the assets into json items ready for xml
             $skuids = parseSKUIDS ($GLOBALS['fpi']['skuidsFile'], $GLOBALS['fpi']['dir']['SKUIDS']);
+            //print_r($skuids); exit;
             parseASSETS ($skuids, $GLOBALS['fpi']['dir']['YMLJSON']);
             break;
         case "XMLITEMS":
@@ -405,9 +406,10 @@ function buildMRSSItem ($singleItem)
             $catString = "";
             foreach ($singleItem["media:category"] as $value)
             {
-                $pos = strpos($value, '|');
+                //echo $value."\n"; exit;
+                $pos = strpos($value, ' | ');
                 $catExplode = ($pos !== false) ? explode("|", $value) : $value;              
-                
+                //$catExplode = (str_contains($value, '|')) ? explode("|", $value) : $value;
                 if (is_array($catExplode) && count($catExplode) > 1):
                     if (trim($catExplode['0']) == $singleItem["channel:title"]):
                         $catString .= $catExplode['1'].",";
@@ -628,7 +630,6 @@ function parseSKUIDS ($file, $uri)
 {
     echo "\tRunning: parseSKUIDS()\n";
     $path = $GLOBALS['fpi']['data_folder'].$uri;
-    //echo $path.$file; exit;
     $skuidsJSON = file_get_contents($path.$file);
     $skuids = json_decode($skuidsJSON, 1);
     return $skuids;  
@@ -740,6 +741,8 @@ function mapSingleToItem ($asset,$folder,$series=false)
      
     $xmlitem["meta"]['media_type'] = "single";
      
+    //print_r($xmlitem);
+    // if its a series do some special things
     if (false !== $series)
     {
         $filesArray = extractFiles($asset['files'],$matchSkuID,true);
@@ -803,7 +806,8 @@ function mapSingleToItem ($asset,$folder,$series=false)
     {
         $filesArray = extractFiles($asset['files'],$matchSkuID,false);
         // determine if it has trailer videos here, since it will not be returning
-        $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false ;
+        $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"]["$matchSkuID"])) ? true : false ;
+        
         $itemFiles = mapItemFiles($filesArray,$matchSkuID,$folder);
         if (false !== $itemFiles)
         {
@@ -817,7 +821,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
                 $xmlitem["meta"]['media_type'] = "trailer";
                 $xmlitem["meta"]['trailer_for'] = $asset['sku'];
                 
-                $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
+                $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"]["$matchSkuID"]["trailer"];
                 $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" : "";
                 $xmlitem['media:source_id']         = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" :  "";
                 $xmlitem["caption"]['media:subtitle:url']      = null;
@@ -833,10 +837,12 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
 {
     echo "\tRunning: mapItemFiles()\n";
     $hasMainImage = false; $hasSecondImage = false; $hasEnSRT = false; $hasOtherMainImage = false;
+    
     $hasVideos = (array_key_exists("videos", $filesArray)) ? true : false ;
     $hasImages = (array_key_exists("images", $filesArray)) ? true : false ;
     $hasVideoSKUID = (array_key_exists($matchSkuID, $filesArray["videos"])) ? true : false ;
     $hasImageSKUID = (array_key_exists($matchSkuID, $filesArray["images"])) ? true : false ;
+    
     
     if (false !== $hasVideos && false !== $hasVideoSKUID && false !== $hasImageSKUID)
     {
@@ -880,6 +886,10 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
         endif;
         return $itemFiles;
     }
+    else
+    {
+        echo "\n\nSKU: ".$matchSkuID." has NO Files\n\n"; 
+    }
     return false;
 }
 # extract the actual files from the yaml
@@ -902,7 +912,7 @@ function extractFiles ($files,$matchSkuID,$series=false)
             $skuid = (false !== $skuidExplode && $skuidExplode['0'] == $matchSkuID) ? $matchSkuID : $skuid;
         else:
             $skuid = (false !== $skuidExplode) ? $skuidExplode['0'] : false;
-            echo ($skuid === $matchSkuID) ? "" : "MISMATCH: ".$matchSkuID." - ".$skuid."\n";
+            echo (trim($skuid) === trim($matchSkuID)) ? "" : "MISMATCH: ".$matchSkuID." - ".$skuid."\n";
         endif;
         
         if (false !== $skuid)
@@ -935,7 +945,7 @@ function extractFiles ($files,$matchSkuID,$series=false)
         $filename = $file['filename'];
         $skuidExplode = ($filename !== "") ? explode("_", $filename) : false;
         // account for the series node prior to skuid
-        $skuid = (false !== $skuidExplode && false !== $series) ? $skuidExplode['0'] : false;
+        $skuid = (false !== $skuidExplode) ? $skuidExplode['0'] : false;
         if (false !== $skuid)
         {
             $imagesArray[$skuid] = (array_key_exists($skuid, $imagesArray)) ? $imagesArray[$skuid] : array();
@@ -954,6 +964,10 @@ function extractFiles ($files,$matchSkuID,$series=false)
                     $imagesArray[$skuid][$view][$WxH] = $filename;
                     break;
             }
+        }
+        else
+        {
+            echo "\tERROR: SKUID == FALSE :".$skuid."\n"; exit;
         }
     }
     return array("images"=>$imagesArray,"videos"=>$videosArray);    
