@@ -1020,9 +1020,10 @@ function listS3BucketFiles($bucket)
 {      
     echo "\tRunning: listS3BucketFiles()\n";
     // aws s3 ls s3://zype-filmhub --recursive --human-readable --summarize | grep '\.yaml$' 
+    
     $output=null; $retval=null;
     //$cmd = "aws s3 ls s3://".$bucket." --recursive --human-readable --summarize | grep '\.yaml$'";
-    $cmd = "aws s3 ls s3://".$bucket." --recursive --summarize --page-size 100 | grep '\.yaml$'";
+    $cmd = "aws s3 ls s3://".$bucket." --recursive --summarize --page-size 400 | grep '\.yaml$'";
     echo "\t".$cmd."\n";
     exec($cmd, $output, $retval);
     if (is_array($output) && !empty($output))
