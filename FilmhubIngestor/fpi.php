@@ -405,7 +405,9 @@ function buildMRSSItem ($singleItem)
             $catString = "";
             foreach ($singleItem["media:category"] as $value)
             {
-                $catExplode = (str_contains($value, '|')) ? explode("|", $value) : $value;
+                $pos = strpos($value, '|');
+                $catExplode = ($pos !== false) ? explode("|", $value) : $value;              
+                
                 if (is_array($catExplode) && count($catExplode) > 1):
                     if (trim($catExplode['0']) == $singleItem["channel:title"]):
                         $catString .= $catExplode['1'].",";
