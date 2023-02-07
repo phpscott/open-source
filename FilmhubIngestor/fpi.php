@@ -177,8 +177,8 @@ function buildHouse ()
         echo "\tMain Session Folder Exists\n";
         $buildHouse['main_data_folder'] = 'Folder Already Exists';
     endif;
-    
     $sessFolder = $mainDataFolder.$GLOBALS['fpi']['sess_data_folder']; //sess_data_folder
+    echo "\tCreating Sessions Folder: ".$sessFolder."\n";
     if (is_dir($sessFolder) === false):
         exec('mkdir '.$sessFolder, $output, $retval);
         $buildHouse['sessions_folder'] = $output;
@@ -210,7 +210,6 @@ function buildHouse ()
             exit;
         endif;
     endif;
-    
     // this gets skipped if pathispassed is conditioned
     if ($GLOBALS['fpi']['new_data_onrun'] === true)
     {
@@ -235,11 +234,8 @@ function buildHouse ()
             $buildHouse['sess_data_folder'] = 'Sessions Folder Already Exists';
         endif;    
     }
-    
-    
     echo "\n";
     echo "\tCreating Other Directories\n\n";
-    
     // do all remaining non genre folders
     foreach ($GLOBALS['fpi']['dir'] as $title => $folder)
     {
@@ -262,7 +258,6 @@ function buildHouse ()
             $buildHouse[$title] = 'Folder Already Exists';  
         endif;
     }      
-    
     echo "\n";
     echo "\tCreating Genre Directories\n\n";    
     // now do genres
@@ -286,7 +281,7 @@ function buildHouse ()
             echo "\t".$title." Folder Exists\n";
             $buildHouse[$title] = 'Folder Already Exists';   
         endif;
-    }  
+    }        
 }
 # simple function to clean directories from previously run data
 function cleanHouse ()
@@ -304,7 +299,7 @@ function cleanHouse ()
     {
         $output = null; $retval = null;
         $path = $GLOBALS['fpi']['data_folder'].$folder;
-        if ($title !== "DIRLIST" && $title !== "MRSSIMPORT"):
+        if ($title !== "DIRLIST" && $title !== "MRSSITEMS"):
             exec('rm -f '.$path."/*", $output, $retval);
             $cleanHouse['dir'] = $output;
         elseif ($title == "MRSSIMPORT"):
@@ -312,7 +307,6 @@ function cleanHouse ()
             $cleanHouse['mrss'] = $output;
         endif;
     }    
-    
 }
 # function to build the mrss file, using xmlitems
 function buildMRSS ($folders)
@@ -370,46 +364,38 @@ function parseXMLITEMS ($path)
 function buildMRSSItem ($singleItem)
 {
     echo "\tRunning: buildMRSSItem()\n";
+    $sourceID = (array_key_exists('media:source_id', $singleItem)) ? $singleItem["media:source_id"] : false ;
     $itemString = '<item>';
         $itemString .= (array_key_exists("media:title", $singleItem)) ? '<title>'.$singleItem["media:title"].'</title>':'<title/>';
         $itemString .= (array_key_exists("item:guid", $singleItem)) ? '<guid>'.$singleItem["item:guid"].'</guid>':'<guid/>';
         $itemString .= "<link/>";
         $itemString .= (array_key_exists("item:pubDate", $singleItem)) ? '<pubDate>'.date("D, j M Y", mktime(0, 0, 1, 1, 1, $singleItem["item:pubDate"])).' 01:01:01</pubDate>':'';
         $itemString .= (array_key_exists("item:endDate", $singleItem)) ? '<endDate>'.$singleItem["item:endDate"].'</endDate>':'<endDate/>';
-        
         if (array_key_exists("media:content:url", $singleItem["video"])) :
             $duration = (array_key_exists("media:content:duration", $singleItem["video"])) ? ' duration="'.$singleItem["video"]["media:content:duration"].'"' : "" ;
             $width = (array_key_exists("media:content:width", $singleItem["video"])) ? ' width="'.$singleItem["video"]["media:content:width"].'"' : "" ;
             $height = (array_key_exists("media:content:height", $singleItem["video"])) ? ' height="'.$singleItem["video"]["media:content:height"].'"' : "" ;
             $itemString .= '<media:content url="'.$GLOBALS['fpi']['http_root_prefix'].$singleItem["video"]["media:content:url"].'"'.$duration.$width.$height.'>';
         endif;
-        
         $itemString .= (array_key_exists("media:title", $singleItem)) ? '<media:title>'.$singleItem["media:title"].'</media:title>' :'';
         $itemString .= (array_key_exists("media:description", $singleItem)) ? '<media:description>'.$singleItem["media:description"].'</media:description>' :'';
-
         // keywords loop
         if (array_key_exists("media:keywords", $singleItem)) :
             $keywordString = implode(",", $singleItem["media:keywords"]);
             $itemString .= '<media:keywords>'.$keywordString.'</media:keywords>';
         endif;
-
         if (array_key_exists("media:thumbnail:url", $singleItem["image"])) :
             $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : "" ;
             $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : "" ;
             $itemString .= '<media:thumbnail url="'.$GLOBALS['fpi']['http_root_prefix'].$singleItem["image"]["media:thumbnail:url"].'"'.$width.$height.' />';
         endif;            
-
         if (array_key_exists("media:category", $singleItem)) :
-
-            // category loop
             $metaString = "";
             $catString = "";
             foreach ($singleItem["media:category"] as $value)
             {
-                //echo $value."\n"; exit;
                 $pos = strpos($value, ' | ');
                 $catExplode = ($pos !== false) ? explode("|", $value) : $value;              
-                //$catExplode = (str_contains($value, '|')) ? explode("|", $value) : $value;
                 if (is_array($catExplode) && count($catExplode) > 1):
                     if (trim($catExplode['0']) == $singleItem["channel:title"]):
                         $catString .= $catExplode['1'].",";
@@ -420,7 +406,6 @@ function buildMRSSItem ($singleItem)
                     $metaString .= $value.","; 
                 endif;
             }
-            //echo "metaString: ".$metaString."\n";
             $itemString .= (trim($catString) !== "") ? '<media:category>'.rtrim(trim($catString),",").'</media:category>' : '';
             $itemString .= ($metaString !== "") ? '<meta name="media:category:genres" value="'.rtrim(trim($metaString),",").'"/>' : '';
         endif;
@@ -431,45 +416,35 @@ function buildMRSSItem ($singleItem)
         endif; 
         $itemString .= (array_key_exists("media:source_id", $singleItem)) ? '<media:source_id>'.$singleItem["media:source_id"].'</media:source_id>':'';
         $itemString .= (array_key_exists("media:country", $singleItem)) ? '<media:country>'.$singleItem["media:country"].'</media:country>':'';
-
         // series details
         $itemString .= (array_key_exists("media:series_id", $singleItem)) ? '<media:series_id>'.$singleItem["media:series_id"].'</media:series_id>':'';
         $itemString .= (array_key_exists("media:series_id", $singleItem)) ? '<meta name="series_sourceid" value="'.$singleItem["media:series_id"].'"/>' : '';
-
         $itemString .= (array_key_exists("media:season", $singleItem)) ? '<media:season>'.$singleItem["media:season"].'</media:season>':'';
         $itemString .= (array_key_exists("media:episode", $singleItem)) ? '<media:episode>'.$singleItem["media:episode"].'</media:episode>':'';
-
         if (array_key_exists("meta", $singleItem) && count($singleItem) >= 1)
         {
             $itemString .= (array_key_exists("media_type", $singleItem["meta"])) ? '<meta name="media_type" value="'.$singleItem["meta"]["media_type"].'"/>' : '';
-            
             $itemString .= (array_key_exists("genre", $singleItem["meta"])) ? '<meta name="genre" value="'.$singleItem["meta"]["genre"].'"/>' : '';
             $itemString .= (array_key_exists("tagline", $singleItem["meta"])) ? '<meta name="tagline" value="'.$singleItem["meta"]["tagline"].'"/>' : '';
             $itemString .= (array_key_exists("copyright", $singleItem["meta"])) ? '<meta name="copyright" value="'.$singleItem["meta"]["copyright"].'"/>' : '';
             $itemString .= (array_key_exists("studio", $singleItem["meta"])) ? '<meta name="studio" value="'.$singleItem["meta"]["studio"].'"/>' : '';
             $itemString .= (array_key_exists("imdb_id", $singleItem["meta"])) ? '<meta name="imdb_id" value="'.$singleItem["meta"]["imdb_id"].'"/>' : '';
             $itemString .= (array_key_exists("production_companies", $singleItem["meta"]) && is_array($singleItem["meta"]["production_companies"])) ? '<meta name="production_companies" value="'.implode(",", $singleItem["meta"]["production_companies"]).'"/>' : '';
-            $itemString .= (array_key_exists("chapters", $singleItem["meta"]) && is_array($singleItem["meta"]["chapters"])) ? '<meta name="chapters" value="'.implode(",", $singleItem["meta"]["chapters"]).'"/>' : '';
-
-            // TODO - post mrss ingest
-            //$singleItem["meta"]['ratings']
-            //$singleItem["meta"]['avails']
-            //$singleItem["meta"]['crew']
-            //$singleItem["meta"]['cast']     
-            
-            // images
-            
-            // srt files
-        }
-
+            $itemString .= (array_key_exists("chapters", $singleItem["meta"]) && is_array($singleItem["meta"]["chapters"])) ? '<meta name="chapters" value="'.implode(",", $singleItem["meta"]["chapters"]).'"/>' : '';            
+        }      
         $itemString .= '</media:content>';
     $itemString .= '</item>';  
     return $itemString;   
 }
+# write post ingest content
+function postIngest ($matchSkuID,$postIngest)
+{
+    $jsonData = json_encode($postIngest);
+    writeThisData ($jsonData,$GLOBALS['fpi']['dir']['POSTINGEST'],$matchSkuID.".json"); 
+}
 # load json file and convert to array
 function loadJSON ($file)
 {
-    //echo "\tRunning: loadJSON()\n";
     $pathandfile = $file;
     $objectJSON = file_get_contents($pathandfile);
     $objects = json_decode($objectJSON, 1);
@@ -689,13 +664,12 @@ function mapSingleToItem ($asset,$folder,$series=false)
     echo "\tRunning: mapSingleToItem()\n";
     $xmlitem = array();
     $xmlitem["meta"] = array();
+    $postingest = array();
     $matchSkuID = $asset['sku'];
-    
     // extract director, actors into description.
     $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
     $actorsString           = (array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
     $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\r\\n" : "").$directorString.$actorsString;
-
     // media
     $xmlitem['channel:title']           = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
@@ -704,11 +678,9 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem['media:source_id']         = (array_key_exists("sku", $asset)) ? $asset['sku'] : null;
     $xmlitem['media:country']           = (array_key_exists("country_of_origin", $asset)) ? $asset['country_of_origin'] : null;
     $xmlitem['media:keywords']          = (array_key_exists("tags", $asset)) ? $asset['tags'] : null;
-    
     // items
     $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku'] : null;
     $xmlitem['item:pubDate']            = (array_key_exists("production_year", $asset)) ? $asset['production_year'] : null;
-    
     // archive for other uses
     $xmlitem["meta"]['genre']                  = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem["meta"]['tagline']                = (array_key_exists("tagline", $asset)) ? $asset['tagline'] : null;
@@ -716,43 +688,44 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem["meta"]['studio']                 = (array_key_exists("studio", $asset)) ? $asset['studio'] : null;
     $xmlitem["meta"]['imdb_id']                = (array_key_exists("imdb_id", $asset)) ? $asset['imdb_id'] : null;
     $xmlitem["meta"]['production_companies']   = (array_key_exists("production_companies", $asset)) ? $asset['production_companies'] : null;
-    
     $xmlitem["meta"]['chapters']                   = (array_key_exists("chapters", $asset)) ? $asset['chapters'] : null;
     $xmlitem["meta"]['ratings']                    = (array_key_exists("ratings", $asset)) ? $asset['ratings'] : null;
     $xmlitem["meta"]['avails']                     = (array_key_exists("avails", $asset)) ? $asset['avails'] : null;
     $xmlitem["meta"]['crew']                     = (array_key_exists("crew", $asset)) ? $asset['crew'] : null;
     $xmlitem["meta"]['cast']                     = (array_key_exists("cast", $asset)) ? $asset['cast'] : null;
+    #postingest
+    $postingest['cast']                     = (array_key_exists("cast", $asset)) ? $asset['cast'] : null;
+    $postingest['crew']                     = (array_key_exists("crew", $asset)) ? $asset['crew'] : null;
+    $postingest['avails']                     = (array_key_exists("avails", $asset)) ? $asset['avails'] : null;
+    $postingest['ratings']                    = (array_key_exists("ratings", $asset)) ? $asset['ratings'] : null;
+    $postingest['chapters']                    = (array_key_exists("chapters", $asset)) ? $asset['chapters'] : null;
     // content
     $xmlitem["video"] = array();
     $xmlitem["video"]['media:content:duration']  = (60*$asset['running_time']); // presuming minutes
     $xmlitem["video"]['media:content:url']       = null;
     $xmlitem["video"]['media:content:width']     = null;
     $xmlitem["video"]['media:content:height']    = null;
-
     $xmlitem["image"] = array();
     $xmlitem["image"]['media:thumbnail:url']       = null;
     $xmlitem["image"]['media:thumbnail:width']     = null;
     $xmlitem["image"]['media:thumbnail:height']    = null;   
-    
     $xmlitem["caption"] = array();
     $xmlitem["caption"]['media:subtitle:url']      = null;
     $xmlitem["caption"]['media:subtitle:type']     = "text/plain";
     $xmlitem["caption"]['media:subtitle:lang']     = "en-us";   
-     
     $xmlitem["meta"]['media_type'] = "single";
-     
-    //print_r($xmlitem);
     // if its a series do some special things
     if (false !== $series)
     {
-        $filesArray = extractFiles($asset['files'],$matchSkuID,true);
+        $filesArray = extractFiles($asset['files'],$matchSkuID,true);    
+        $postingest["videos"] = $filesArray["videos"];
+        $postingest["images"] = $filesArray["images"];  
         // determine if it has trailer videos here, since it will not be returning
         $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false ;
         $episodes = $asset["episodes"];
         foreach ($episodes as $key => $episode)
         {
             $xmlitem["meta"]['media_type'] = "episode";
-            
             $episodeSkuID                       = (array_key_exists("sku", $episode)) ? $episode['sku'] : null;
             $xmlitem['item:guid']               = $matchSkuID."-".$episodeSkuID;
             $xmlitem['media:title']             = (array_key_exists("name", $episode)) ? $episode['name'] : null;
@@ -762,15 +735,15 @@ function mapSingleToItem ($asset,$folder,$series=false)
             $xmlitem["video"]['media:content:duration']  = (60*$asset['running_time']);
             $xmlitem['media:series_id']         = $matchSkuID;
             $xmlitem['media:source_id']         = $episodeSkuID;
-            
             $node = "S".$episode['season_number']."E".$episode['episode_number'];
             $node2 = "S0E0";
             if (array_key_exists($node, $filesArray["images"])):
                 $filesArray["images"][$episodeSkuID] = $filesArray["images"][$node];
+                $postingest["EpisodeSeason"] = $node;
             elseif (array_key_exists($node2, $filesArray["images"])):
                 $filesArray["images"][$episodeSkuID] = $filesArray["images"][$node2];
+                $postingest["EpisodeSeason"] = $node2;
             endif;
-            
             $itemFiles = mapItemFiles($filesArray,$episodeSkuID,$folder);
             if (false !== $itemFiles)
             {
@@ -780,18 +753,16 @@ function mapSingleToItem ($asset,$folder,$series=false)
                 }
                 $xmlitem["video"]['media:content:duration']  = (60*$asset['running_time']);
                 writeThisData ($xmlitem,$GLOBALS['fpi']['dir']['XMLITEMS'],$episodeSkuID.$GLOBALS['fpi']['xmlItemFile']);
+                postIngest($episodeSkuID,$postingest);
             }
         }
         // use this to build an item for the series and use the trailer as the main video
         if (false !== $hasTrailerVideo)
         {
             $xmlitem["meta"]['media_type'] = "series";
-            
             $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"][$matchSkuID]["trailer"];
-            
             $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
-            $xmlitem['media:description']       = (array_key_exists("description", $asset)) ? $asset['description'].$descAddOn : null;            
-            
+            $xmlitem['media:description']       = (array_key_exists("description", $asset)) ? $asset['description'].$descAddOn : null;      
             $xmlitem['item:guid']               = $matchSkuID;
             $xmlitem['media:source_id']         = $matchSkuID;
             $xmlitem["caption"]['media:subtitle:url']      = null;
@@ -800,6 +771,8 @@ function mapSingleToItem ($asset,$folder,$series=false)
             $xmlitem['media:episode']           = null;
             $xmlitem['media:season']            = null;            
             writeThisData ($xmlitem,$GLOBALS['fpi']['dir']['XMLSERIESITEMS'],$matchSkuID.$GLOBALS['fpi']['xmlItemSeriesFile']);
+            $postingest["EpisodeSeason"] = "Series";
+            postIngest($matchSkuID,$postingest);
         }        
     }
     else
@@ -807,8 +780,10 @@ function mapSingleToItem ($asset,$folder,$series=false)
         $filesArray = extractFiles($asset['files'],$matchSkuID,false);
         // determine if it has trailer videos here, since it will not be returning
         $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"]["$matchSkuID"])) ? true : false ;
-        
         $itemFiles = mapItemFiles($filesArray,$matchSkuID,$folder);
+        $postingest["videos"] = $filesArray["videos"];
+        $postingest["images"] = $filesArray["images"];
+        
         if (false !== $itemFiles)
         {
             foreach ($itemFiles as $fileKey => $fileValue)
@@ -816,6 +791,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
                 $xmlitem[$fileKey] = $fileValue;
             }
             writeThisData ($xmlitem,$GLOBALS['fpi']['dir']['XMLITEMS'],$matchSkuID.$GLOBALS['fpi']['xmlItemFile']);
+            postIngest($matchSkuID,$postingest);
             if (false !== $hasTrailerVideo)
             {
                 $xmlitem["meta"]['media_type'] = "trailer";
@@ -828,9 +804,12 @@ function mapSingleToItem ($asset,$folder,$series=false)
                 $xmlitem["caption"]['media:subtitle:type']     = null;
                 $xmlitem["caption"]['media:subtitle:lang']     = null;               
                 writeThisData ($xmlitem,$GLOBALS['fpi']['dir']['XMLTRAILERITEMS'],$matchSkuID.$GLOBALS['fpi']['xmlItemTrailerFile']);
+                postIngest($asset['sku']."-T",$postingest);
             }
         }
     }
+    // send over post ingest data
+    
 }
 # map each items files back into the complete array 
 function mapItemFiles ($filesArray,$matchSkuID,$folder)
@@ -843,46 +822,45 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
     $hasVideoSKUID = (array_key_exists($matchSkuID, $filesArray["videos"])) ? true : false ;
     $hasImageSKUID = (array_key_exists($matchSkuID, $filesArray["images"])) ? true : false ;
     
-    
     if (false !== $hasVideos && false !== $hasVideoSKUID && false !== $hasImageSKUID)
     {
-        $hasMainVideo = (array_key_exists("main", $filesArray["videos"][$matchSkuID])) ? true : false ;
-        $hasSRT = (array_key_exists("text", $filesArray["videos"][$matchSkuID])) ? true : false ;
+        $hasMainVideo = (array_key_exists("main", $filesArray["videos"]["$matchSkuID"])) ? true : false ;
+        $hasSRT = (array_key_exists("text", $filesArray["videos"]["$matchSkuID"])) ? true : false ;
         
-        $hasLandscapeImages = (array_key_exists("landscape", $filesArray["images"][$matchSkuID])) ? true : false ;
-        $hasOtherImages = (array_key_exists("other", $filesArray["images"][$matchSkuID])) ? true : false ;
+        $hasLandscapeImages = (array_key_exists("landscape", $filesArray["images"]["$matchSkuID"])) ? true : false ;
+        $hasOtherImages = (array_key_exists("other", $filesArray["images"]["$matchSkuID"])) ? true : false ;
         if (false !== $hasLandscapeImages) 
         {
-            $hasMainImage = (array_key_exists("16x9", $filesArray["images"][$matchSkuID]["landscape"])) ? true : false ;
-            $hasSecondImage = (array_key_exists("4x3", $filesArray["images"][$matchSkuID]["landscape"])) ? true : false ;
+            $hasMainImage = (array_key_exists("16x9", $filesArray["images"]["$matchSkuID"]["landscape"])) ? true : false ;
+            $hasSecondImage = (array_key_exists("4x3", $filesArray["images"]["$matchSkuID"]["landscape"])) ? true : false ;
         }
         if (false !== $hasOtherImages)
         {
-            $hasOtherMainImage = (array_key_exists("0", $filesArray["images"][$matchSkuID]["other"])) ? true : false ;
+            $hasOtherMainImage = (array_key_exists("0", $filesArray["images"]["$matchSkuID"]["other"])) ? true : false ;
         }
         if (false !== $hasSRT) 
         {
-            $hasEnSRT = (array_key_exists("en", $filesArray["videos"][$matchSkuID]["text"])) ? true : false ;
+            $hasEnSRT = (array_key_exists("en", $filesArray["videos"]["$matchSkuID"]["text"])) ? true : false ;
         }        
         
         $itemFiles = array();
         $itemFiles["video"] = array(); $itemFiles["image"] = array(); $itemFiles["caption"] = array();
         if (false !== $hasMainVideo)
         {
-            $itemFiles["video"]["media:content:url"] = $folder.$filesArray["videos"][$matchSkuID]["main"];
+            $itemFiles["video"]["media:content:url"] = $folder.$filesArray["videos"]["$matchSkuID"]["main"];
         }
         if (false !== $hasEnSRT)
         {
-            $itemFiles["caption"]["media:subtitle:url"]     = $folder.$filesArray["videos"][$matchSkuID]["text"]["en"];
+            $itemFiles["caption"]["media:subtitle:url"]     = $folder.$filesArray["videos"]["$matchSkuID"]["text"]["en"];
             $itemFiles["caption"]["media:subtitle:lang"]    = "en-us";
             $itemFiles["caption"]['media:subtitle:type']    = "text/plain";
         } 
         if (false !== $hasMainImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"][$matchSkuID]["landscape"]["16x9"];
+            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
         elseif (false !== $hasSecondImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"][$matchSkuID]["landscape"]["4x3"];
+            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
         elseif (false !== $hasOtherMainImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"][$matchSkuID]["other"]["0"];
+            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["other"]["0"];
         endif;
         return $itemFiles;
     }
