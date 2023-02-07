@@ -6,174 +6,177 @@ This script is available as is and without warranty.
 - open-source/FilmhubIngestor
 
 ### CONFIGURATION
+---
 
-###### config_name
+#### config_name
 This is the primary configuration name. This matches the parameter passed as -c. Example: "default".
 
-##### data_folder
+#### data_folder
 data/default/
 
-##### new_data_onrun
+#### new_data_onrun
 false
 
-##### sess_data_folder
+#### sess_data_folder
 sessions/
 
-##### root_prefix
+#### root_prefix
 
-##### local_s3
+#### local_s3
 s3
 
-##### http_root_prefix
+#### http_root_prefix
 https://zype-filmhub.s3.us-west-2.amazonaws.com/
 
-##### http_uri_prefix
+#### http_uri_prefix
 https://zype-filmhub.s3.us-west-2.amazonaws.com/
 
-##### s3Bucket
+#### s3Bucket
 zype-filmhub
 
-##### dirLocation
+#### dirLocation
 dir
 
-##### dirFile
+#### dirFile
 s3_dir
 
-##### badskuidsFile
+#### badskuidsFile
 invalid_skuids.json
 
-##### skuidsFile
+#### skuidsFile
 valid_skuids.json
 
-##### allskuidsFile
+#### allskuidsFile
 all_skuids.json
 
-##### objectsFile
+#### objectsFile
 all_objects.json
 
-##### yamlFile
+#### yamlFile
 _yaml.yml
 
-##### xmlItemFile
+#### xmlItemFile
 _xmlitem.json
 
-##### xmlItemSeriesFile
+#### xmlItemSeriesFile
 _series_xmlitem.json
 
-##### xmlItemTrailerFile
+#### xmlItemTrailerFile
 _trailer_xmlitem.json
 
-##### mrssXMLItem
+#### mrssXMLItem
 _xml.xml
 
-##### yamlJSONFile
+#### yamlJSONFile
 _yaml.json
 
-##### video_ext
+#### video_ext
 [.mov, .mp4]
 
-##### image_ext
+#### image_ext
 [.png, .jpg]
 
-##### cc_ext
+#### cc_ext
 [.srt, .vtt]
 
-##### yaml_ext
+#### yaml_ext
 [yaml, .yml]
 
-##### s3_config_dir
+#### s3_config_dir
 s3conf/
 
-##### dir
+#### dir
+---
     
-##### YMLJSON
+#### YMLJSON
 yaml_json/
 
-##### YAML
+#### YAML
 yaml/
 
-##### XMLITEMS
+#### XMLITEMS
 xmlitems/
 
-##### XMLSERIESITEMS
+#### XMLSERIESITEMS
 xmlitems_series/
 
-##### XMLTRAILERITEMS
+#### XMLTRAILERITEMS
 xmlitems_trailers/
 
-##### DIRLIST
+#### DIRLIST
 dirlist/
 
-##### OBJECTS
+#### OBJECTS
 objects/
 
-##### SKUIDS
+#### SKUIDS
 skuids/
 
-##### BADSKUIDS
+#### BADSKUIDS
 badskuids/
 
-##### MRSSITEMS
+#### MRSSITEMS
 mrssitems/
 
-##### MRSSIMPORT
+#### MRSSIMPORT
 mrssimport/
 
-##### POSTINGEST
+#### POSTINGEST
 postingest/
 
-##### genre_folders
+#### genre_folders
+---
     
-    ###### Action/Adventure
-    mrssitems/actionadventure/
+#### Action/Adventure
+mrssitems/actionadventure/
 
-    ###### Animation
-    mrssitems/animation/
+#### Animation
+mrssitems/animation/
 
-    ###### Comedy
-    mrssitems/comedy/
+#### Comedy
+mrssitems/comedy/
 
-    ###### Crime
-    mrssitems/crime/
+#### Crime
+mrssitems/crime/
 
-    ###### Documentary
-    mrssitems/documentary/
+#### Documentary
+mrssitems/documentary/
 
-    ###### Fantasy
-    mrssitems/fantasy/
+#### Fantasy
+mrssitems/fantasy/
 
-    ###### Horror
-    mrssitems/horror/
+#### Horror
+mrssitems/horror/
 
-    ###### Informational & Educational
-    mrssitems/infoandedu/
+#### Informational & Educational
+mrssitems/infoandedu/
 
-    ###### Musical/Dance
-    mrssitems/musicaldance/
+#### Musical/Dance
+mrssitems/musicaldance/
 
-    ###### Music & Performances
-    mrssitems/musicperformance/
+#### Music & Performances
+mrssitems/musicperformance/
 
-    ###### Mystery
-    mrssitems/mystery/
+#### Mystery
+mrssitems/mystery/
 
-    ###### Reality Show
-    mrssitems/realityshow/
+#### Reality Show
+mrssitems/realityshow/
 
-    ###### Sci-Fi
-    mrssitems/scifi/
+#### Sci-Fi
+mrssitems/scifi/
 
-    ###### Sport & Fitness
-    mrssitems/sportsfitness/
+#### Sport & Fitness
+mrssitems/sportsfitness/
 
-    ###### Thriller
-    mrssitems/thriller/
+#### Thriller
+mrssitems/thriller/
 
-    ###### Unknown
-    mrssitems/unknown/
+#### Unknown
+mrssitems/unknown/
 
-    ###### War
-    mrssitems/war/
+#### War
+mrssitems/war/
 
-    ###### Western
-    mrssitems/western/
+#### Western
+mrssitems/western/
