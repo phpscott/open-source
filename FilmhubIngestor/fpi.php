@@ -7,6 +7,24 @@ $GLOBALS['fpi']['new_data_onrun']   = false; // turn this off to set, so its tur
 $GLOBALS['fpi']['main_data_folder'] = null;
 $GLOBALS['fpi']['pathispassed']     = false;
 $GLOBALS['fpi']['passedvalidlist']  = false;
+$GLOBALS['fpi']['sysinit_functions']  = array(
+    "YAML"=>        "yaml_parse",
+    "FILEGET"=>     "file_get_contents",
+    "JSONENCODE"=>  "json_encode",
+    "JSONDECODE"=>  "json_decode",
+    "ISFILE"=>      "is_file",
+    "ISDIR"=>       "is_dir",
+    "EXEC"=>        "exec",
+    "ISWRITE"=>     "is_writable",
+    "FOPEN"=>       "fopen",
+    "FWRITE"=>      "fwrite",
+    "FCLOSE"=>      "fclose",
+    "EXPLODE"=>      "explode",
+    "ARRAYFILTER"=> "array_filter",
+    "GETENV"=>      "getenv",
+    "PUTENV"=>      "putenv",
+    "GETOPT"=>      "getopt"
+    );
 
 /************* FUNCTIONS LIST ************************************************************/
 # load the json config. todo: allow different configs/paths to be loaded via param
@@ -66,6 +84,9 @@ function runThisAction ($type,$options=false)
     echo "\nrunThisAction\n";
     switch ($type)
     {
+        case "SYSINIT":
+            systemCheck ();
+            break;
         case "BUILD":
             buildHouse ();
             break;
@@ -152,6 +173,34 @@ function runThisAction ($type,$options=false)
             break;
     }
 }
+# simple round of try and catch
+function systemCheck ()
+{
+    foreach ($GLOBALS['fpi']['sysinit_functions'] as $key => $value) 
+    {
+        $hasFailure = false;
+        if (function_exists($value)):
+            echo "\e[1;32mPASS\e[0m ".$key." Function IS Available\n";
+        else:
+            echo "\e[1;31mERROR\e[0m: ".$key." Function IS NOT Available.\n";
+            $hasFailure = true;
+        endif;
+    }
+    if (true !== $hasFailure):
+        $output = null; $retval = null;
+        exec("aws --version", $output, $retval);
+        $bits = (is_array($output) && array_key_exists("0", $output)) ? explode(" ", $output['0']) : false;
+        $awsbits = (is_array($bits) && array_key_exists("0", $bits)) ? $bits['0'] : false;
+        $hasAWS = strpos($awsbits, "aws-cli");        
+        if ($hasAWS !== false):
+            echo "\e[1;32mPASS\e[0m AWS-CLI SDK IS Available\n";
+        else:
+            echo "\e[1;31mERROR\e[0m: AWS-CLI SDK IS NOT Available.\n";
+        endif;
+    endif;
+}
+
+
 # simple function to build directories. requires 1 dir created and chmod 777: data
 function buildHouse ()
 {
@@ -1058,9 +1107,12 @@ $options = getopt("c:a:s:b:");
 // s == Session, file to use instead of running a full ls on a aws s3 bucket (optional)
 if (is_array($options) && !empty($options) && count($options) > 1 && $options['a'] !== false)
 {
-    runThisAction("CONFIG",$options);
+    if ($options['a'] !== "sysinit"): runThisAction("CONFIG",$options); endif;
     switch ($options['a']) 
     { 
+        case "sysinit": //step 8
+            runThisAction("SYSINIT");
+            break;
         case "build":
             runThisAction("BUILD"); // buildHouse
             break;

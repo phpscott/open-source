@@ -5,16 +5,15 @@ This script is available as is and without warranty.
 - Author: Scott Cliburn
 - open-source/FilmhubIngestor
 
-
-
-
-
 #### SETUP
 To use this script follow the below steps to get started
 
 - Copy the fpi.php file into a directory.
 - Create a directory next to the php file called "conf"
-- Copy the 
+- Create a directory next to the php file called "s3conf"
+- Copy the "conf/defaut.conf" from the repo into the "conf" directory.
+- Copy the "s3conf/defaut.conf" from the repo into the "s3conf" directory.
+- Run the sysinit flag to verify you have the required modules installed
 
 **Script Flow:**
 
