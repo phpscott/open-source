@@ -11,9 +11,12 @@ To use this script follow the below steps to get started
 - Copy the fpi.php file into a directory.
 - Create a directory next to the php file called "conf"
 - Create a directory next to the php file called "s3conf"
-- Copy the "conf/defaut.conf" from the repo into the "conf" directory.
-- Copy the "s3conf/defaut.conf" from the repo into the "s3conf" directory.
-- Run the sysinit flag to verify you have the required modules installed
+- Copy the "conf/defaut.json" from the repo into the "conf" directory.
+- Copy the "s3conf/defaut.json" from the repo into the "s3conf" directory.
+- Update the "conf/defaut.json" you copied down to match your settings/paths. 
+- Update the "s3conf/defaut.json" you copied down to include your aws settings. 
+    - Note: The bucket is defined on the "conf/default.json" file, and can also be passed as an option to the script.
+- Run the sysinit flag to verify you have the required modules installed.
 
 **Script Flow:**
 
