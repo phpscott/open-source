@@ -6,7 +6,7 @@ This script is available as is and without warranty.
 - open-source/FilmhubIngestor
 
 #### CONFIGURATION
-`{
+{
     "config_name": "default",
     "data_folder": "data/default/",
     "new_data_onrun": "false",
@@ -67,5 +67,5 @@ This script is available as is and without warranty.
         "Western": "mrssitems/western/"
     },
     "s3_config_dir": "s3conf/"
-}`
+}
 

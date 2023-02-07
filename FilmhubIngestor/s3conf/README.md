@@ -6,7 +6,7 @@ This script is available as is and without warranty.
 - open-source/FilmhubIngestor
 
 #### CONFIGURATION
-`{
+{
     "s3_config": {
         "AWS_ACCESS_KEY_ID": "test-AWS_ACCESS_KEY_ID",
         "AWS_SECRET_ACCESS_KEY": "test-AWS_SECRET_ACCESS_KEY",
@@ -14,6 +14,6 @@ This script is available as is and without warranty.
         "AWS_DEFAULT_OUTPUT": "test-AWS_DEFAULT_OUTPUT"      
     }    
 } 
-`
+
 
 
