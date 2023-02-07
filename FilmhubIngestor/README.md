@@ -233,3 +233,6 @@ The following modules are installed on the working Linux system.
 - Description:    Ubuntu 22.04.1 LTS
 - Release:        22.04
 - Codename:       jammy
+
+**`aws --version`**
+aws-cli/2.9.21 Python/3.9.11 Linux/5.15.0-58-generic exe/x86_64.ubuntu.22 prompt/off

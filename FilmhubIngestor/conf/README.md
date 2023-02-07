@@ -85,8 +85,8 @@ _yaml.json
 #### s3_config_dir
 s3conf/
 
-#### dir
 ---
+#### dir
     
 #### YMLJSON
 yaml_json/
@@ -124,8 +124,8 @@ mrssimport/
 #### POSTINGEST
 postingest/
 
-#### genre_folders
 ---
+#### genre_folders
     
 #### Action/Adventure
 mrssitems/actionadventure/

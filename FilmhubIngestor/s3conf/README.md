@@ -8,13 +8,13 @@ This script is available as is and without warranty.
 #### CONFIGURATION
 The following configurations must be set in order to the AWS-CLI S3 function.
 
-- **AWS_ACCESS_KEY_ID**
+#### AWS_ACCESS_KEY_ID
 
-- **AWS_SECRET_ACCESS_KEY**
+#### AWS_SECRET_ACCESS_KEY
 
-- **AWS_DEFAULT_REGION**
+#### AWS_DEFAULT_REGION
 
-- **AWS_DEFAULT_OUTPUT**
+#### AWS_DEFAULT_OUTPUT
 
 
 
