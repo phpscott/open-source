@@ -48,10 +48,10 @@ The configuration is a JSON file that represents the paths/uris where content wi
 
 > UPDATE: A new "build" action is available to create the directories required in the data folder. This requires the data folder to exist and be writable: `chmod -f 0777 data`
 
-- These directories should be placed in a directory called `data/default`.
+- These directories should be placed in a directory called `data/default`. (Replace default with your desired directory).
 - The default folder will correlate directly to the default.json config file and should be named the same.
 - If your config file is "myconfig" you should name the data/default folder to data/myconfig.
-- Then create the following directories in that data/myconfig folder:
+- Then create the following directories in that data/myconfig folder (or run the `-a build` action):
     - **DIRLIST**
         - "dirlist/", keep untouched
     - **YMLJSON**
@@ -88,24 +88,24 @@ Each of these should be cleaned on a full script run.
 This section was extracted directly from the conf/default.json example.
 
 - Each of these folders need to be created in the mrssimport folder created above:
-    - "Action/Adventure": "mrssimport/actionadventure/",
-    - "Animation": "mrssimport/animation/",
-    - "Comedy": "mrssimport/comedy/",
-    - "Crime": "mrssimport/crime/",
-    - "Documentary": "mrssimport/documentary/",
-    - "Fantasy": "mrssimport/fantasy/",
-    - "Horror": "mrssimport/horror/",
-    - "Informational & Educational": "mrssimport/infoandedu/",
-    - "Musical/Dance": "mrssimport/musicaldance/",
-    - "Music & Performances": "mrssimport/musicperformance/",
-    - "Mystery": "mrssimport/mystery/",
-    - "Reality Show": "mrssimport/realityshow/",
-    - "Sci-Fi": "mrssimport/scifi/",
-    - "Sport & Fitness": "mrssimport/sportsfitness/",
-    - "Thriller": "mrssimport/thriller/",
-    - "Unknown": "mrssimport/unknown/",
-    - "War": "mrssimport/war/",
-    - "Western": "mrssimport/western/"
+    - "Action/Adventure": "mrssitems/actionadventure/",
+    - "Animation": "mrssitems/animation/",
+    - "Comedy": "mrssitems/comedy/",
+    - "Crime": "mrssitems/crime/",
+    - "Documentary": "mrssitems/documentary/",
+    - "Fantasy": "mrssitems/fantasy/",
+    - "Horror": "mrssitems/horror/",
+    - "Informational & Educational": "mrssitems/infoandedu/",
+    - "Musical/Dance": "mrssitems/musicaldance/",
+    - "Music & Performances": "mrssitems/musicperformance/",
+    - "Mystery": "mrssitems/mystery/",
+    - "Reality Show": "mrssitems/realityshow/",
+    - "Sci-Fi": "mrssitems/scifi/",
+    - "Sport & Fitness": "mrssitems/sportsfitness/",
+    - "Thriller": "mrssitems/thriller/",
+    - "Unknown": "mrssitems/unknown/",
+    - "War": "mrssitems/war/",
+    - "Western": "mrssitems/western/"
 
 ### Running the Script:
 

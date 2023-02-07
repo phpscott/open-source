@@ -1,29 +1,31 @@
-<?php ini_set('display_errors', 1);
+<?php ini_set('display_errors', 1); // set this to 0 when running production
 
-$GLOBALS['fpi']                     = array();
-$GLOBALS['fpi']['stamp']            = date("YdmHis");
-$GLOBALS['fpi']['confdir']          = "conf/";
+$GLOBALS['fpi']                     = array(); // yep, an array
+$GLOBALS['fpi']['stamp']            = date("YdmHis"); // simple timestamp to avoid collisions.
+$GLOBALS['fpi']['confdir']          = "conf/"; // need to set this path once here. no other paths should be set here.
 $GLOBALS['fpi']['new_data_onrun']   = false; // turn this off to set, so its turned in implicitly during run
-$GLOBALS['fpi']['main_data_folder'] = null;
-$GLOBALS['fpi']['pathispassed']     = false;
-$GLOBALS['fpi']['passedvalidlist']  = false;
+$GLOBALS['fpi']['main_data_folder'] = null; // this gets populated if sessions are used.
+$GLOBALS['fpi']['pathispassed']     = false; // another check system on if a previous session is used again.
+$GLOBALS['fpi']['passedvalidlist']  = false; // if the list being used is valid, populate once verified.
+// set some functions to check for, quick and dirty
 $GLOBALS['fpi']['sysinit_functions']  = array(
-    "YAML"=>        "yaml_parse",
-    "FILEGET"=>     "file_get_contents",
-    "JSONENCODE"=>  "json_encode",
-    "JSONDECODE"=>  "json_decode",
-    "ISFILE"=>      "is_file",
-    "ISDIR"=>       "is_dir",
-    "EXEC"=>        "exec",
-    "ISWRITE"=>     "is_writable",
-    "FOPEN"=>       "fopen",
-    "FWRITE"=>      "fwrite",
-    "FCLOSE"=>      "fclose",
-    "EXPLODE"=>      "explode",
-    "ARRAYFILTER"=> "array_filter",
-    "GETENV"=>      "getenv",
-    "PUTENV"=>      "putenv",
-    "GETOPT"=>      "getopt"
+    "EXEC"=>        "exec", // can this exec a command via cmdline? 
+    "YAML"=>        "yaml_parse", // need to be able to parse yaml
+    "JSONENCODE"=>  "json_encode", // must be able to handle json
+    "JSONDECODE"=>  "json_decode", // json decoder/encoder
+    "EXPLODE"=>      "explode", // explode content, 
+    "IMPLODE"=>      "implode", // implode content, 
+    "ARRAYFILTER"=> "array_filter",   // array stuff 
+    "FILEGET"=>     "file_get_contents", // getting contents locally and http
+    "ISFILE"=>      "is_file", // is a file
+    "ISDIR"=>       "is_dir", // is a dir
+    "ISWRITE"=>     "is_writable", // is writable
+    "FOPEN"=>       "fopen", // open for writing
+    "FWRITE"=>      "fwrite", // file write
+    "FCLOSE"=>      "fclose", // file close
+    "GETENV"=>      "getenv", // get env variables (available/set during script run and expunged after)
+    "PUTENV"=>      "putenv", // put env variables (only available in this session (s3))
+    "GETOPT"=>      "getopt" // get options passed to the script (-c, -a, -b, -s)
     );
 
 /************* FUNCTIONS LIST ************************************************************/
@@ -58,7 +60,6 @@ function loadConfig ($options)
     else:
         echo "\n\nERROR: No Config File Found\n\n"; exit;
     endif;
-    //print_r($GLOBALS['fpi']); exit;
 }
 # load the s3 json config. todo: allow different configs/paths to be loaded via param
 function loadS3Config ($options)
@@ -186,6 +187,7 @@ function systemCheck ()
             $hasFailure = true;
         endif;
     }
+    echo "\n";
     if (true !== $hasFailure):
         $output = null; $retval = null;
         exec("aws --version", $output, $retval);
@@ -198,6 +200,7 @@ function systemCheck ()
             echo "\e[1;31mERROR\e[0m: AWS-CLI SDK IS NOT Available.\n";
         endif;
     endif;
+    echo "\n";
 }
 
 
@@ -1202,8 +1205,6 @@ else
 {
     echo "\nERROR:\nNo Configuration Found\nOR\nNo Valid Action Found\n\n"; exit;
 }
-
-
 /* 
 php fpi.php -c zype-filmhub -a all -s 20230502111037
 php fpi.php -c zype-filmhub -a full

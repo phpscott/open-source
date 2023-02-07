@@ -9,7 +9,7 @@
     "http_uri_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
     "s3Bucket": "zype-filmhub",
     "dirLocation": "dir",
-    "dirFile": "",
+    "dirFile": "filmhub",
     "badskuidsFile": "invalid_skuids.json",
     "skuidsFile": "valid_skuids.json",
     "allskuidsFile": "all_skuids.json",
