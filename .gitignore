@@ -1,3 +1,4 @@
 FilmhubIngestor/archive_keep
 FilmhubIngestor/data
-FilmhubIngestor/s3conf
+FilmhubIngestor/data/s3conf/zype-filmhub.json
+FilmhubIngestor/data/s3conf/zype-nosey.json
