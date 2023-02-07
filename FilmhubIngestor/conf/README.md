@@ -7,176 +7,173 @@ This script is available as is and without warranty.
 
 ### CONFIGURATION
 
-##### config_name
+###### config_name
 This is the primary configuration name. This matches the parameter passed as -c. Example: "default".
 
-#### data_folder
+##### data_folder
 data/default/
 
-#### new_data_onrun
+##### new_data_onrun
 false
 
-#### sess_data_folder
+##### sess_data_folder
 sessions/
 
-#### root_prefix
+##### root_prefix
 
-#### local_s3
+##### local_s3
 s3
 
-#### http_root_prefix
+##### http_root_prefix
 https://zype-filmhub.s3.us-west-2.amazonaws.com/
 
-#### http_uri_prefix
+##### http_uri_prefix
 https://zype-filmhub.s3.us-west-2.amazonaws.com/
 
-#### s3Bucket
+##### s3Bucket
 zype-filmhub
 
-#### dirLocation
+##### dirLocation
 dir
 
-#### dirFile
+##### dirFile
 s3_dir
 
-#### badskuidsFile
+##### badskuidsFile
 invalid_skuids.json
 
-#### skuidsFile
+##### skuidsFile
 valid_skuids.json
 
-#### allskuidsFile
+##### allskuidsFile
 all_skuids.json
 
-#### objectsFile
+##### objectsFile
 all_objects.json
 
-#### yamlFile
+##### yamlFile
 _yaml.yml
 
-#### xmlItemFile
+##### xmlItemFile
 _xmlitem.json
 
-#### xmlItemSeriesFile
+##### xmlItemSeriesFile
 _series_xmlitem.json
 
-#### xmlItemTrailerFile
+##### xmlItemTrailerFile
 _trailer_xmlitem.json
 
-#### mrssXMLItem
+##### mrssXMLItem
 _xml.xml
 
-#### yamlJSONFile
+##### yamlJSONFile
 _yaml.json
 
-#### video_ext
+##### video_ext
 [.mov, .mp4]
 
-#### image_ext
+##### image_ext
 [.png, .jpg]
 
-#### cc_ext
+##### cc_ext
 [.srt, .vtt]
 
-#### yaml_ext
+##### yaml_ext
 [yaml, .yml]
 
-#### s3_config_dir
+##### s3_config_dir
 s3conf/
 
-#### dir
+##### dir
     
-YMLJSON
+##### YMLJSON
 yaml_json/
 
-YAML
+##### YAML
 yaml/
 
-XMLITEMS
+##### XMLITEMS
 xmlitems/
 
-XMLSERIESITEMS
+##### XMLSERIESITEMS
 xmlitems_series/
 
-XMLTRAILERITEMS
+##### XMLTRAILERITEMS
 xmlitems_trailers/
 
-DIRLIST
+##### DIRLIST
 dirlist/
 
-OBJECTS
+##### OBJECTS
 objects/
 
-SKUIDS
+##### SKUIDS
 skuids/
 
-BADSKUIDS
+##### BADSKUIDS
 badskuids/
 
-MRSSITEMS
+##### MRSSITEMS
 mrssitems/
 
-MRSSIMPORT
+##### MRSSIMPORT
 mrssimport/
 
-POSTINGEST
+##### POSTINGEST
 postingest/
 
-#### genre_folders
+##### genre_folders
     
-    Action/Adventure
+    ###### Action/Adventure
     mrssitems/actionadventure/
 
-    Animation
+    ###### Animation
     mrssitems/animation/
 
-    Comedy
+    ###### Comedy
     mrssitems/comedy/
 
-    Crime
+    ###### Crime
     mrssitems/crime/
 
-    Documentary
+    ###### Documentary
     mrssitems/documentary/
 
-    Fantasy
+    ###### Fantasy
     mrssitems/fantasy/
 
-    Horror
+    ###### Horror
     mrssitems/horror/
 
-    Informational & Educational
+    ###### Informational & Educational
     mrssitems/infoandedu/
 
-    Musical/Dance
+    ###### Musical/Dance
     mrssitems/musicaldance/
 
-    Music & Performances
+    ###### Music & Performances
     mrssitems/musicperformance/
 
-    Mystery
+    ###### Mystery
     mrssitems/mystery/
 
-    Reality Show
+    ###### Reality Show
     mrssitems/realityshow/
 
-    Sci-Fi
+    ###### Sci-Fi
     mrssitems/scifi/
 
-    Sport & Fitness
+    ###### Sport & Fitness
     mrssitems/sportsfitness/
 
-    Thriller
+    ###### Thriller
     mrssitems/thriller/
 
-    Unknown
+    ###### Unknown
     mrssitems/unknown/
 
-    War
+    ###### War
     mrssitems/war/
 
-    Western
+    ###### Western
     mrssitems/western/
-
-
-
