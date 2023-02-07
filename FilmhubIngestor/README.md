@@ -70,6 +70,8 @@ The configuration is a JSON file that represents the paths/uris where content wi
         - "skuids/", // clean on full run
     - **BADSKUIDS**
         - "badskuids/", // clean on full run
+    - **MRSSITEMS**
+        - "mrssitems/", // clean on full run
     - **MRSSIMPORT**
         - "mrssimport/", // clean on full run
     - **POSTINGEST**
@@ -120,18 +122,20 @@ The arguments or parameters are:
 
 The following actions are available and must be run in order:
 
-1. "clean": This will clean all directories that are cleaned on a full run.
-2. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
-3. "objects": This will read the skuids and validate them, and pull down YAML files for each skuid (single works/series)
-4. "assets": This will parse the YAML files for each skuid and build JSON with mrss field names.
-5. "xmlitems": This will take the JSON with MRSS field names and create actual MRSS <item>s and store them as XML.
-6. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
+1. "build": This will build all directories that are required on a script run.
+2. "clean": This will clean all directories that are cleaned on a full run.
+3. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
+4. "objects": This will read the skuids and validate them, and pull down YAML files for each skuid (single works/series)
+5. "assets": This will parse the YAML files for each skuid and build JSON with mrss field names.
+6. "xmlitems": This will take the JSON with MRSS field names and create actual MRSS <item>s and store them as XML.
+7. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
 
 **Additional Actions**
 
 - "full": This runs all the above events.
 - "fulls3": This runs all the above events.
 - "build": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
+- "sysinit": This will do a quick check on if certain functions that are used in this script are available.
 
 **S3 Actions**
 
@@ -144,11 +148,19 @@ Some of the following actions will require the AWS CLI to be installed.
 
 **Example Runs:**
 
+`php fpi.php -c default -a sysinit` - simple check with RED/GREEN color codes: ERROR/PASS
+
+`php fpi.php -c default -a clean` - cleans the default data directories and files.
+
+`php fpi.php -c default -a build` - checks and creates directories that are not created.
+
 `php fpi.php -c default -a fulls3` - requires `new_data_onrun` to be set to `true`
 
 `php fpi.php -c default -a fulls3 -s 20230502111037` - ignores `new_data_onrun`
 
-`php fpi.php -c default -a full -s 20230502111037`
+`php fpi.php -c default -a fulls3 -s 20230502111037 -b zype-filhmub` - Uses a predefined session, ignoring s3 lookup and uses an alternate AWS Bucket.
+
+`php fpi.php -c default -a full -s 20230502111037` - Uses the predefined session, cleans and looks for a existing dir file.
 
 > NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
 

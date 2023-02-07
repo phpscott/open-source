@@ -606,10 +606,14 @@ function parseRawDIRLIST ($file, $dir)
 
     # Iterate over the file in DIRLIST
     $path = $GLOBALS['fpi']['data_folder'].$dir;
-    $lines = file($path.$file);
+    $lines = (is_file($path.$file) === true) ? file($path.$file) : false;
     $dataArray = array();
     $skuidsArray = array();
     // Loop through our array
+    if (false === $lines): 
+        echo "Lines: ".$lines."\n\n"; exit;
+        echo "\nERROR: No Dir File List Found\n\n"; exit;
+    endif;
     foreach ($lines as $line) 
     {
         $filetype = substr(trim($line), -5);
