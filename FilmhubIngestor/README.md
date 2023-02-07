@@ -5,6 +5,17 @@ This script is available as is and without warranty.
 - Author: Scott Cliburn
 - open-source/FilmhubIngestor
 
+
+
+
+
+#### SETUP
+To use this script follow the below steps to get started
+
+- Copy the fpi.php file into a directory.
+- Create a directory next to the php file called "conf"
+- Copy the 
+
 **Script Flow:**
 
 When the script is run, a Configuration file is loaded from conf/.
