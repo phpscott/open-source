@@ -1061,7 +1061,7 @@ function setS3EnvVars ()
 # set the single env var for this script session only
 function setS3EnvVar ($key="AWS_DEFAULT_OUTPUT", $value="json")
 {
-    echo "\tRunning: setS3EnvVar()\n";
+    //echo "\tRunning: setS3EnvVar()\n";
     $cmd = "$key=$value";
     putenv($cmd);
 }
@@ -1137,6 +1137,7 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("GETS3ENVVAR"); // 
             break;
         case "s3list":
+            runThisAction("BUILD");
             runThisAction("S3CONFIG",$options);
             runThisAction("SETS3ENVVAR");
             $bucket = (array_key_exists('b', $options)) ? $options['b'] : false;

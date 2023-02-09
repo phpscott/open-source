@@ -133,7 +133,7 @@ The following actions are available and must be run in order:
 **Additional Actions**
 
 - "full": This runs all the above events.
-- "fulls3": This runs all the above events.
+- "fulls3": This runs all the above events and uses the aws-cli s3 command to do it.
 - "build": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
 - "sysinit": This will do a quick check on if certain functions that are used in this script are available.
 
@@ -144,7 +144,7 @@ Some of the following actions will require the AWS CLI to be installed.
 - "s3config": This will load the S3 Configuration. This is called with each additional action automatically. This is session based.
 - "sets3env": This will load the S3 Conf file and set the Environment Variables using that data.
 - "gets3env": This will load the current Env. Vars. into the GLOBAL `s3_env_config`.
-- "s3list": This will create directories in the data folder. This requires the data folder to be `chmod 777`.
+- "s3list": This action will list the s3 bucket contents.
 
 **Example Runs:**
 
