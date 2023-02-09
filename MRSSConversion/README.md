@@ -1,5 +1,5 @@
-# FILMHUB (FH) PACKAGE INGESTOR (FPI)
-#### Filhmub > MRSS Transformer
+# MRSS Conversion Tool
+#### MRSSConversion > MRSS Transformer
 This script is available as is and without warranty.
 
 - Author: Scott Cliburn
@@ -8,7 +8,7 @@ This script is available as is and without warranty.
 #### SETUP
 To use this script follow the below steps to get started
 
-- Copy the fpi.php file into a directory.
+- Copy the mcon.php file into a directory.
 - Create a directory next to the php file called "conf"
 - Create a directory next to the php file called "s3conf"
 - Copy the "conf/defaut.json" from the repo into the "conf" directory.
@@ -148,23 +148,23 @@ Some of the following actions will require the AWS CLI to be installed.
 
 **Example Runs:**
 
-`php fpi.php -c default -a sysinit` - simple check with RED/GREEN color codes: ERROR/PASS
+`php mcon.php -c default -a sysinit` - simple check with RED/GREEN color codes: ERROR/PASS
 
-`php fpi.php -c default -a clean` - cleans the default data directories and files.
+`php mcon.php -c default -a clean` - cleans the default data directories and files.
 
-`php fpi.php -c default -a build` - checks and creates directories that are not created.
+`php mcon.php -c default -a build` - checks and creates directories that are not created.
 
-`php fpi.php -c default -a fulls3` - requires `new_data_onrun` to be set to `true`
+`php mcon.php -c default -a fulls3` - requires `new_data_onrun` to be set to `true`
 
-`php fpi.php -c default -a fulls3 -s 20230502111037` - ignores `new_data_onrun`
+`php mcon.php -c default -a fulls3 -s 20230502111037` - ignores `new_data_onrun`
 
-`php fpi.php -c default -a fulls3 -s 20230502111037 -b zype-filhmub` - Uses a predefined session, ignoring s3 lookup and uses an alternate AWS Bucket.
+`php mcon.php -c default -a fulls3 -s 20230502111037 -b zype-filhmub` - Uses a predefined session, ignoring s3 lookup and uses an alternate AWS Bucket.
 
-`php fpi.php -c default -a full -s 20230502111037` - Uses the predefined session, cleans and looks for a existing dir file.
+`php mcon.php -c default -a full -s 20230502111037` - Uses the predefined session, cleans and looks for a existing dir file.
 
 > NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
 
-`php fpi.php -c default -a fulls3 > mylog.log`
+`php mcon.php -c default -a fulls3 > mylog.log`
 
 #### Modules Installed ####
 

@@ -6,6 +6,8 @@ This script is available as is and without warranty.
 - open-source/FilmhubIngestor
 
 #### CONFIGURATION
+Copy default.txt and name it default.json (if you are using the default name "default")
+
 The following configurations must be set in order to the AWS-CLI S3 function.
 
 #### AWS_ACCESS_KEY_ID
