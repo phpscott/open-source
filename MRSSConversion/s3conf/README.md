@@ -1,9 +1,9 @@
-# FILMHUB (FH) PACKAGE INGESTOR (FPI)
-#### Filhmub > MRSS Transformer > S3 Configuration JSON
+# MRSS Conversion Tool
+#### MRSSConversion > MRSS Transformer > S3 Configuration JSON
 This script is available as is and without warranty.
 
 - Author: Scott Cliburn
-- open-source/FilmhubIngestor
+- open-source/MRSSConversion
 
 #### CONFIGURATION
 Copy default.txt and name it default.json (if you are using the default name "default")

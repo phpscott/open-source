@@ -3,7 +3,7 @@
 This script is available as is and without warranty.
 
 - Author: Scott Cliburn
-- open-source/FilmhubIngestor
+- open-source/MRSSConversion
 
 #### SETUP
 To use this script follow the below steps to get started

@@ -1,9 +1,9 @@
-# FILMHUB (FH) PACKAGE INGESTOR (FPI)
-#### Filhmub > MRSS Transformer > Configuration JSON
+# MRSS Conversion Tool
+#### MRSSConversion > MRSS Transformer > Configuration JSON
 This script is available as is and without warranty.
 
 - Author: Scott Cliburn
-- open-source/FilmhubIngestor
+- open-source/MRSSConversion
 
 ### CONFIGURATION
 ---

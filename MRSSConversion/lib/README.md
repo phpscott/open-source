@@ -3,7 +3,7 @@
 This script is available as is and without warranty.
 
 - Author: Scott Cliburn
-- open-source/FilmhubIngestor
+- open-source/MRSSConversion
 
 #### CONFIGURATION
 The following scripts are required and should be downloaded along with the main mncon.php script.
