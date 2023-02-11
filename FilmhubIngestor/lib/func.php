@@ -105,7 +105,7 @@ function runThisAction ($type,$options=false)
         case "TEST":
             // do some checks on functions if they exist?
             break;
-        case "CLEAN":
+        case "CLEANHOUSE":
             echo "Step 1: CleanHouse\n";
             cleanHouse ();
             break;
@@ -123,23 +123,35 @@ function runThisAction ($type,$options=false)
             $skuids = parseOBJECTS ($GLOBALS['fpi']['objectsFile'], $GLOBALS['fpi']['dir']['OBJECTS']);
             // write valid skuids from objects
             writeThisData ($skuids,$GLOBALS['fpi']['dir']['SKUIDS'],$GLOBALS['fpi']['skuidsFile']);
+            break;        
+        case "CLEANYAML":
+            echo "Step 4: Read YAML and Parse Downloaded YAMLs\n";
+            // iterate over yaml source and clean yaml file
+            $skuids = parseSKUIDS ($GLOBALS['fpi']['skuidsFile'], $GLOBALS['fpi']['dir']['SKUIDS']);
+            cleanYAML ($skuids);
+            break;
+        case "PARSEYAML":
+            echo "Step 5: Read YAML and Parse Downloaded YAMLs\n";
+            // iterate over objects and build paths for each valid skuid
+            $skuids = parseSKUIDS ($GLOBALS['fpi']['skuidsFile'], $GLOBALS['fpi']['dir']['SKUIDS']);
+            parseYAML ($skuids);
             break;
         case "ASSETS":
-            echo "Step 4: Read ASSETS Files, Create JSON ready for XML (XMLITEMS)\n";
+            echo "Step 6: Read ASSETS Files, Create JSON ready for XML (XMLITEMS)\n";
             // parse skuids and parse the assets into json items ready for xml
             $skuids = parseSKUIDS ($GLOBALS['fpi']['skuidsFile'], $GLOBALS['fpi']['dir']['SKUIDS']);
             //print_r($skuids); exit;
             parseASSETS ($skuids, $GLOBALS['fpi']['dir']['YMLJSON']);
             break;
         case "XMLITEMS":
-            echo "Step 5: For each GENRE, Read JSON (XMLITEMS) Files, Create XML ready for MRSS\n";
+            echo "Step 7: For each GENRE, Read JSON (XMLITEMS) Files, Create XML ready for MRSS\n";
             // iterate over directory of items and convert to single xml <item>s matching mrss sec
             parseXMLITEMS ($GLOBALS['fpi']['dir']['XMLITEMS']);
             parseXMLITEMS ($GLOBALS['fpi']['dir']['XMLSERIESITEMS']);
             parseXMLITEMS ($GLOBALS['fpi']['dir']['XMLTRAILERITEMS']);
             break;
         case "BUILDMRSS":
-            echo "Step 6: For each GENRE, Combine XML ready for MRSS based on GENRE\n";
+            echo "Step 8: For each GENRE, Combine XML ready for MRSS based on GENRE\n";
             // iterate over genre folders combining individual items into single mrss (per genre folder)
             buildMRSS ($GLOBALS['fpi']['genre_folders']);
             break;
@@ -998,13 +1010,60 @@ function downloadYAML ($file, $skuid)
     else:
         echo "\t\e[1;31mERROR\e[0m: COPYing File: ".$skuid.": ".$file."\n";
     endif;    
-    $yamlData = yaml_parse($fileData,0);
-    $yamlJson = json_encode($yamlData);
-    writeThisData ($yamlJson,$GLOBALS['fpi']['dir']['YMLJSON'],$writeFile);  
     writeThisData ($fileData,$GLOBALS['fpi']['dir']['YAML'],$writeYamlFile);  
 }
-
-
+# parse the yaml file into an array, shold be cleaned first.
+function parseYAML ($skuids)
+{
+    echo "\tRunning: parseYAML()\n";
+    //print_r($skuids); exit;
+    foreach ($skuids as $skuid => $skuidpath)
+    {
+        $file = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['dir']['CLEANYAML'].$skuid.$GLOBALS['fpi']['yamlFile']; // dir, dir
+        $writeFile = $skuid.$GLOBALS['fpi']['yamlJSONFile'];
+        $fileData = file_get_contents($file);
+        try {              
+            $yamlData = yaml_parse($fileData,0);
+            $yamlJson = json_encode($yamlData);
+            writeThisData ($yamlJson,$GLOBALS['fpi']['dir']['YMLJSON'],$writeFile);
+        } catch (Exception $ex) {
+            echo "ERROR: ".$ex;
+            echo "\n\n"; exit;
+        }
+    }
+}
+function cleanYAML ($skuids)
+{
+    echo "\tRunning: cleanYAML()\n";
+    foreach ($skuids as $skuid => $skuidpath)
+    {
+        $file = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['dir']['YAML'].$skuid.$GLOBALS['fpi']['yamlFile'];
+        $cleanFile = $GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['dir']['CLEANYAML'].$skuid.$GLOBALS['fpi']['yamlFile'];// dir, dir
+        $lines = file($file);
+        $quotes = 0;
+        removeThisFile ($cleanFile);
+        foreach ($lines as $key => $line) 
+        {
+            $line = rtrim($line," ");
+            $quotes = substr_count($line, '"');
+            if ($quotes >= 3)
+            {
+                $posFirst = strpos($line, '"'); 
+                $removeThisMany = ($quotes - 2);
+                $posNext = $posFirst;
+                do 
+                {
+                    $posThis = strpos($line, '"', $posNext+1); 
+                    $line = substr_replace($line, '', $posThis, 1);
+                    $posNext = $posThis;
+                    --$removeThisMany;
+                } while ($removeThisMany > 0);                
+            }
+            writeThisSegment ($line,$GLOBALS['fpi']['dir']['CLEANYAML'],$skuid.$GLOBALS['fpi']['yamlFile']);
+        }
+    }    
+    
+}
 
 /********* BOF S3 FUNCTIONS LIST **********************************************************/
 # get S3 Env. Vars for this script session only
