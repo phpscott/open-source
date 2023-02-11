@@ -1,0 +1,8 @@
+{
+    "zype_config": {
+        "APIKEY": "test-AWS_ACCESS_KEY_ID",
+        "APIKEY_READONLY": "test-AWS_SECRET_ACCESS_KEY",
+        "SITE_ID": "test-AWS_DEFAULT_REGION" 
+    }    
+} 
+

@@ -1,5 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 require(BASEPATH."/lib/vars.php");
+require(BASEPATH."/lib/zypeapi.php");
 
 /************* FUNCTIONS LIST ************************************************************/
 # load the json config. todo: allow different configs/paths to be loaded via param
@@ -122,6 +123,10 @@ function runThisAction ($type,$options=false)
             // write skuids
             writeThisData ($returnArray["skuids"],$GLOBALS['mcon']['dir']['SKUIDS'],$GLOBALS['mcon']['allskuidsFile']);
             break;
+        case "APILIST":
+            echo "\nRead API, Build SKUIDs & Paths, Create OBJECTS\n";
+            
+            break;        
         case "OBJECTS":
             echo "\nRead OBJECTS File, Validate SKUIDs & Create ASSETS, Download YAMLs\n";
             // iterate over objects and build paths for each valid skuid

@@ -58,5 +58,6 @@
         "War": "mrssitems/war/",
         "Western": "mrssitems/western/"
     },
-    "s3_config_dir": "s3conf/"
+    "s3_config_dir": "s3conf/",
+    "zype_config_dir": "zypeconf/"
 }

@@ -1,5 +1,8 @@
 FilmhubIngestor/archive_keep
 FilmhubIngestor/data
 FilmhubIngestor/s3conf/*.json
+FilmhubIngestor/conf/*.json
 MRSSConversion/data
 MRSSConversion/s3conf/*.json
+MRSSConversion/conf/*.json
+MRSSConversion/zypeconf/*.json
