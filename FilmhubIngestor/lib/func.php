@@ -990,9 +990,14 @@ function downloadYAML ($file, $skuid)
     $writeFile = $skuid.$GLOBALS['fpi']['yamlJSONFile'];
     $writeYamlFile = $skuid.$GLOBALS['fpi']['yamlFile'];
     $fileData = file_get_contents($file);
-    echo "\tGet File: ".$file."\n";
-    echo "\tWrite File: ".$writeFile."\n";
-    echo "\tWrite YAML File: ".$writeYamlFile."\n";
+
+    // lets check that we have http access to the file, otherwise maybe a cp using aws-cli
+    $hasERROR = strpos($fileData, "<Error><Code>"); // needs improvement     
+    if ($hasERROR === false):
+        echo "\t\e[1;32mPASS\e[0m: COPYing File: ".$skuid.": ".$file."\n";
+    else:
+        echo "\t\e[1;31mERROR\e[0m: COPYing File: ".$skuid.": ".$file."\n";
+    endif;    
     $yamlData = yaml_parse($fileData,0);
     $yamlJson = json_encode($yamlData);
     writeThisData ($yamlJson,$GLOBALS['fpi']['dir']['YMLJSON'],$writeFile);  

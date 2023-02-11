@@ -421,7 +421,7 @@ function buildMRSSItem ($singleItem)
             $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : "" ;
             $itemString .= '<media:thumbnail url="'.$GLOBALS['mcon']['http_root_prefix'].$singleItem["image"]["media:thumbnail:url"].'"'.$width.$height.' />';
         endif;            
-        if (array_key_exists("media:category", $singleItem)) :
+        if (array_key_exists("media:category", $singleItem) && is_array($singleItem["media:category"])) :
             $metaString = "";
             $catString = "";
             foreach ($singleItem["media:category"] as $value)
@@ -605,8 +605,7 @@ function parseRawDIRLIST ($file, $dir)
             $array = explode(" ", trim($line));
             $results = array_filter($array,"cleanArrayFilter"); $nodes = array_values($results);   
             $theFourthIndex = (array_key_exists("3", $nodes)) ? $nodes['3'] : false;
-            $theFourthIndex = str_replace($GLOBALS['mcon']['data_folder'].$GLOBALS['mcon']['root_prefix'], "", $theFourthIndex);
-
+            $theFourthIndex = str_replace(array($GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['root_prefix'],$GLOBALS['fpi']['root_prefix']), "", $theFourthIndex);
             $explodedObject = (false !== $theFourthIndex) ? explode("/", $theFourthIndex) : false;
             $explodedSKU = (false !== $explodedObject['0']) ? explode("_", $explodedObject['0']) : false;
             
@@ -633,6 +632,7 @@ function parseOBJECTS ($file, $uri)
         $folder = $folderExplode['0'];
         downloadYAML ($GLOBALS['mcon']['http_uri_prefix'].$object, $skuid);
         $skuidsArray[$skuid] = $folder;       
+        echo "Resting Between Downloads\n"; sleep(2);
     }
     return $skuidsArray;
 }
@@ -757,7 +757,9 @@ function mapSingleToItem ($asset,$folder,$series=false)
         $postingest["videos"] = $filesArray["videos"];
         $postingest["images"] = $filesArray["images"];  
         // determine if it has trailer videos here, since it will not be returning
-        $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false ;
+        
+        $hasTrailerVideo = (array_key_exists($matchSkuID, $filesArray["videos"])) ? ((array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false) : false ;
+        
         $episodes = $asset["episodes"];
         foreach ($episodes as $key => $episode)
         {
