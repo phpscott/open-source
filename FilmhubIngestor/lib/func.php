@@ -412,7 +412,7 @@ function buildMRSSItem ($singleItem)
             $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : "" ;
             $itemString .= '<media:thumbnail url="'.$GLOBALS['fpi']['http_root_prefix'].$singleItem["image"]["media:thumbnail:url"].'"'.$width.$height.' />';
         endif;            
-        if (array_key_exists("media:category", $singleItem)) :
+        if (array_key_exists("media:category", $singleItem) && is_array($singleItem["media:category"])) :
             $metaString = "";
             $catString = "";
             foreach ($singleItem["media:category"] as $value)
@@ -627,7 +627,7 @@ function parseOBJECTS ($file, $uri)
         $folder = $folderExplode['0'];
         downloadYAML ($GLOBALS['fpi']['http_uri_prefix'].$object, $skuid);
         $skuidsArray[$skuid] = $folder;   
-        echo "Resting Between Downloads\n"; sleep(1);
+        echo "Resting Between Downloads\n"; sleep(2);
     }
     return $skuidsArray;
 }
@@ -752,7 +752,9 @@ function mapSingleToItem ($asset,$folder,$series=false)
         $postingest["videos"] = $filesArray["videos"];
         $postingest["images"] = $filesArray["images"];  
         // determine if it has trailer videos here, since it will not be returning
-        $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false ;
+        
+        $hasTrailerVideo = (array_key_exists($matchSkuID, $filesArray["videos"])) ? ((array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false) : false ;
+        
         $episodes = $asset["episodes"];
         foreach ($episodes as $key => $episode)
         {
