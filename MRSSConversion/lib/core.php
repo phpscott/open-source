@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 require(BASEPATH."/lib/vars.php");
-require(BASEPATH."/lib/zypeapi.php");
+require(BASEPATH."/lib/zype/Zype.php");
 
 /************* FUNCTIONS LIST ************************************************************/
 # load the json config. todo: allow different configs/paths to be loaded via param
@@ -90,6 +90,14 @@ function runThisAction ($type,$options=false)
                     break;
             }
             break;
+        case "DOWNIMAGES":
+            echo "\nBuilding the Data structure\n";
+            downloadImages ();
+            break;
+        case "DOWNCAPTIONS":
+            echo "\nDownloading Closed Captions\n";
+            downloadCaptions ();
+            break;
         // s3
         case "S3CONFIG":
             loadS3Config ($options);
@@ -111,7 +119,7 @@ function runThisAction ($type,$options=false)
         case "TEST":
             // do some checks on functions if they exist?
             break;
-        case "CLEAN":
+        case "CLEANHOUSE":
             echo "\nCleanHouse\n";
             cleanHouse ();
             break;
@@ -133,6 +141,18 @@ function runThisAction ($type,$options=false)
             $skuids = parseOBJECTS ($GLOBALS['mcon']['objectsFile'], $GLOBALS['mcon']['dir']['OBJECTS']);
             // write valid skuids from objects
             writeThisData ($skuids,$GLOBALS['mcon']['dir']['SKUIDS'],$GLOBALS['mcon']['skuidsFile']);
+            break;
+        case "CLEANYAML":
+            echo "Step 4: Read YAML and Parse Downloaded YAMLs\n";
+            // iterate over yaml source and clean yaml file
+            $skuids = parseSKUIDS ($GLOBALS['mcon']['skuidsFile'], $GLOBALS['mcon']['dir']['SKUIDS']);
+            cleanYAML ($skuids);
+            break;
+        case "PARSEYAML":
+            echo "Step 5: Read YAML and Parse Downloaded YAMLs\n";
+            // iterate over objects and build paths for each valid skuid
+            $skuids = parseSKUIDS ($GLOBALS['mcon']['skuidsFile'], $GLOBALS['mcon']['dir']['SKUIDS']);
+            parseYAML ($skuids);
             break;
         case "ASSETS":
             echo "\nRead ASSETS Files, Create JSON ready for XML (XMLITEMS)\n";
@@ -313,6 +333,32 @@ function buildHouse ()
             $buildHouse[$title] = 'Folder Already Exists';   
         endif;
     }        
+}
+function buildRoom ($path)
+{
+    echo "\tRunning: buildRoom()\n";
+    $realPath = $GLOBALS['mcon']['data_folder'].$path."/";
+    $output = null; $retval = null;
+    if (is_dir($realPath) === false):
+        exec('mkdir '.$realPath, $output, $retval);
+        if (is_dir($realPath) === false):
+            return false;
+        else:
+            $output = null; $retval = null;
+            exec('chmod 0777 -f '.$realPath, $output, $retval);
+            return true;
+        endif;  
+    else:
+        return true;
+    endif;
+    return false; // it should not reach this
+}
+# simple function to clean a single dir from previously run data
+function cleanRoom ($path,$scope=".json")
+{
+    echo "\tRunning: cleanRoom()\n";
+    $realPath = $GLOBALS['mcon']['data_folder'].$path;
+    exec('rm -f '.$realPath."/*".$scope, $output, $retval);  
 }
 # simple function to clean directories from previously run data
 function cleanHouse ()
@@ -596,6 +642,8 @@ function parseRawDIRLIST ($file, $dir)
     if (false === $lines): 
         echo "Lines: ".$lines."\n\n"; exit;
         echo "\nERROR: No Dir File List Found\n\n"; exit;
+    else:
+        echo "\nLIST Lines Found\n\n";
     endif;
     foreach ($lines as $line) 
     {
@@ -605,7 +653,7 @@ function parseRawDIRLIST ($file, $dir)
             $array = explode(" ", trim($line));
             $results = array_filter($array,"cleanArrayFilter"); $nodes = array_values($results);   
             $theFourthIndex = (array_key_exists("3", $nodes)) ? $nodes['3'] : false;
-            $theFourthIndex = str_replace(array($GLOBALS['fpi']['data_folder'].$GLOBALS['fpi']['root_prefix'],$GLOBALS['fpi']['root_prefix']), "", $theFourthIndex);
+            $theFourthIndex = str_replace(array($GLOBALS['mcon']['data_folder'].$GLOBALS['mcon']['root_prefix'],$GLOBALS['mcon']['root_prefix']), "", $theFourthIndex);
             $explodedObject = (false !== $theFourthIndex) ? explode("/", $theFourthIndex) : false;
             $explodedSKU = (false !== $explodedObject['0']) ? explode("_", $explodedObject['0']) : false;
             
@@ -698,6 +746,7 @@ function getActors ($cast=false)
 function mapSingleToItem ($asset,$folder,$series=false)
 {
     echo "\tRunning: mapSingleToItem()\n";
+    
     $xmlitem = array();
     $xmlitem["meta"] = array();
     $postingest = array();
@@ -750,15 +799,20 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem["caption"]['media:subtitle:type']     = "text/plain";
     $xmlitem["caption"]['media:subtitle:lang']     = "en-us";   
     $xmlitem["meta"]['media_type'] = "single";
+    
     // if its a series do some special things
     if (false !== $series)
     {
-        $filesArray = extractFiles($asset['files'],$matchSkuID,true);    
+        $filesArray = extractFiles($asset['files'],$matchSkuID,true); 
+        $filesArray["folder"] = $folder;
         $postingest["videos"] = $filesArray["videos"];
         $postingest["images"] = $filesArray["images"];  
         // determine if it has trailer videos here, since it will not be returning
         
         $hasTrailerVideo = (array_key_exists($matchSkuID, $filesArray["videos"])) ? ((array_key_exists("trailer", $filesArray["videos"][$matchSkuID])) ? true : false) : false ;
+        
+        $enclosure = array($matchSkuID=>$filesArray);
+        writeThisData ($enclosure,$GLOBALS['mcon']['dir']['FILES'],$matchSkuID.$GLOBALS['mcon']['filesJSONFile']);        
         
         $episodes = $asset["episodes"];
         foreach ($episodes as $key => $episode)
@@ -809,6 +863,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
             $xmlitem['media:episode']           = null;
             $xmlitem['media:season']            = null;            
             writeThisData ($xmlitem,$GLOBALS['mcon']['dir']['XMLSERIESITEMS'],$matchSkuID.$GLOBALS['mcon']['xmlItemSeriesFile']);
+            
             $postingest["EpisodeSeason"] = "Series";
             postIngest($matchSkuID,$postingest);
         }        
@@ -816,6 +871,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     else
     {
         $filesArray = extractFiles($asset['files'],$matchSkuID,false);
+        $filesArray["folder"] = $folder;
         // determine if it has trailer videos here, since it will not be returning
         $hasTrailerVideo = (array_key_exists("trailer", $filesArray["videos"]["$matchSkuID"])) ? true : false ;
         $itemFiles = mapItemFiles($filesArray,$matchSkuID,$folder);
@@ -829,6 +885,8 @@ function mapSingleToItem ($asset,$folder,$series=false)
                 $xmlitem[$fileKey] = $fileValue;
             }
             writeThisData ($xmlitem,$GLOBALS['mcon']['dir']['XMLITEMS'],$matchSkuID.$GLOBALS['mcon']['xmlItemFile']);
+            $enclosure = array($matchSkuID=>$filesArray);
+            writeThisData ($enclosure,$GLOBALS['mcon']['dir']['FILES'],$matchSkuID.$GLOBALS['mcon']['filesJSONFile']);
             postIngest($matchSkuID,$postingest);
             if (false !== $hasTrailerVideo)
             {
@@ -1003,13 +1061,114 @@ function downloadYAML ($file, $skuid)
     else:
         echo "\t\e[1;31mERROR\e[0m: COPYing File: ".$skuid.": ".$file."\n";
     endif;    
-    $yamlData = yaml_parse($fileData,0);
-    $yamlJson = json_encode($yamlData);
-    writeThisData ($yamlJson,$GLOBALS['mcon']['dir']['YMLJSON'],$writeFile);  
     writeThisData ($fileData,$GLOBALS['mcon']['dir']['YAML'],$writeYamlFile);  
 }
+# download captions for each skuid
+function downloadCaptions ()
+{
+    echo "\tRunning: downloadCaptions()\n";
+    $path = $GLOBALS['mcon']['dir']['FILES'];
+    $list = generateItemsList ($path,".json");
+    foreach ($list as $key => $file)
+    {
+        if (is_file($file)):
+            $fileData = file_get_contents($file);
+            $fileArray = json_decode($fileData, 1);
+            //print_r($fileArray); exit;
+            foreach ($fileArray as $skuid => $array)
+            {
+                $captionsPath = $GLOBALS['mcon']['dir']['CAPTIONS'].$skuid."/";
+                // check for the dir
+                $isDir = buildRoom($captionsPath);                
+                $folder = (array_key_exists("folder", $array)) ? $array["folder"] : "";
+                $images = $array["images"];
+                $videos = $array["videos"];
+                foreach ($videos as $itemid => $value)
+                {
+                    if (array_key_exists("text", $value))
+                    {
+                        $captions = $value["text"];
+                        if (false !== $isDir):
+                            cleanRoom($captionsPath,".json");
+                            foreach ($captions as $lang => $caption)
+                            {
+                                $url = $GLOBALS['mcon']["http_root_prefix"].$folder.$caption;
+                                downloadCaption($url,$captionsPath,$caption);
+                                sleep(1);
+                            }
+                        endif;
+                    }
+                }
+            }
+        endif;
+    }
+}
+function downloadCaption ($url,$writePath,$name)
+{
+    echo "\tRunning: downloadCaption()\n";
+    $fileData = file_get_contents($url);
+    //$GLOBALS['mcon']['data_folder']
+    // lets check that we have http access to the file, otherwise maybe a cp using aws-cli
+    $hasERROR = strpos($fileData, "<Error><Code>"); // needs improvement     
+    if ($hasERROR === false):
+        echo "\t\e[1;32mPASS\e[0m: COPYing Captions: ".$name."\n";
+    else:
+        echo "\t\e[1;31mERROR\e[0m: COPYing Captions: ".$name."\n";
+    endif;    
+    writeThisData ($fileData,$writePath,$name);  
+}
+# parse the yaml file into an array, shold be cleaned first.
+function parseYAML ($skuids)
+{
+    echo "\tRunning: parseYAML()\n";
+    //print_r($skuids); exit;
+    foreach ($skuids as $skuid => $skuidpath)
+    {
+        $file = $GLOBALS['mcon']['data_folder'].$GLOBALS['mcon']['dir']['CLEANYAML'].$skuid.$GLOBALS['mcon']['yamlFile']; // dir, dir
+        $writeFile = $skuid.$GLOBALS['mcon']['yamlJSONFile'];
+        $fileData = file_get_contents($file);
+        try {              
+    $yamlData = yaml_parse($fileData,0);
+    $yamlJson = json_encode($yamlData);
+            writeThisData ($yamlJson,$GLOBALS['mcon']['dir']['YMLJSON'],$writeFile);
+        } catch (Exception $ex) {
+            echo "ERROR: ".$ex;
+            echo "\n\n"; exit;
+        }
+    }
+}
+function cleanYAML ($skuids)
+{
+    echo "\tRunning: cleanYAML()\n";
+    foreach ($skuids as $skuid => $skuidpath)
+    {
+        $file = $GLOBALS['mcon']['data_folder'].$GLOBALS['mcon']['dir']['YAML'].$skuid.$GLOBALS['mcon']['yamlFile'];
+        $cleanFile = $GLOBALS['mcon']['dir']['CLEANYAML'].$skuid.$GLOBALS['mcon']['yamlFile'];// dir, dir
+        $lines = file($file);
+        $quotes = 0;
+        removeThisFile ($cleanFile);
+        foreach ($lines as $key => $line) 
+        {
+            $line = rtrim($line," ");
+            $quotes = substr_count($line, '"');
+            if ($quotes >= 3)
+            {
+                $posFirst = strpos($line, '"'); 
+                $removeThisMany = ($quotes - 2);
+                $posNext = $posFirst;
+                do 
+                {
+                    $posThis = strpos($line, '"', $posNext+1); 
+                    $line = substr_replace($line, '', $posThis, 1);
+                    $posNext = $posThis;
+                    --$removeThisMany;
+                } while ($removeThisMany > 0);                
+            }
+            writeThisSegment ($line,$GLOBALS['mcon']['dir']['CLEANYAML'],$skuid.$GLOBALS['mcon']['yamlFile']);
+        }
+    }    
 
-
+}
 
 /********* BOF S3 FUNCTIONS LIST **********************************************************/
 # get S3 Env. Vars for this script session only

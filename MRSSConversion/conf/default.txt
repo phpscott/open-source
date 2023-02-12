@@ -22,6 +22,7 @@
     "yamlJSONFile": "_yaml.json",
     "dir": {
         "YMLJSON": "yaml_json/",
+        "CLEANYAML": "yaml_clean/",
         "YAML": "yaml/",
         "XMLITEMS": "xmlitems/",
         "XMLSERIESITEMS": "xmlitems_series/",

@@ -47,8 +47,8 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("S3FILECP"); 
             break;
         // individual items
-        case "clean": //step 1
-            runThisAction("CLEAN");
+        case "cleanhouse": //step 1
+            runThisAction("CLEANHOUSE");
             break;
         case "readdir": //step 2
             runThisAction("DIRLIST");
@@ -56,23 +56,37 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         case "objects": //step 3
             runThisAction("OBJECTS");
             break;
-        case "assets": //step 4
+        case "cleanyaml": //step 4
+            runThisAction("CLEANYAML");
+            break;
+        case "parseyaml": //step 5
+            runThisAction("PARSEYAML");
+            break;
+        case "assets": //step 6
             runThisAction("ASSETS");
             break;
-        case "xmlitems": //step 5
+        case "xmlitems": //step 7
             runThisAction("XMLITEMS");
             break;
-        case "buildmrss": //step 6
+        case "buildmrss": //step 8
             runThisAction("BUILDMRSS");
+            break;
+        case "pullcaptions":
+            runThisAction("DOWNCAPTIONS");
+            break;
+        case "pullimages": 
+            runThisAction("DOWNIMAGES");
             break;
 
         
         // compiled groups of cases    
         case "full": // creates new session, or uses the default config, or passed variable, if no list is config, and nothing passed it will end.
             runThisAction("BUILD");
-            runThisAction("CLEAN"); sleep(1);
+            runThisAction("CLEANHOUSE"); sleep(1);
             runThisAction("DIRLIST"); sleep(1);
             runThisAction("OBJECTS"); sleep(1);
+            runThisAction("CLEANYAML"); sleep(1);
+            runThisAction("PARSEYAML"); sleep(1);
             runThisAction("ASSETS"); sleep(1);
             runThisAction("XMLITEMS"); sleep(1);
             runThisAction("BUILDMRSS"); sleep(1);
@@ -87,9 +101,11 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             else:
                 echo "\n\nSKIPPING: S3 List Generation; Valid List File Found\n";
             endif;
-            runThisAction("CLEAN"); sleep(1);
+            runThisAction("CLEANHOUSE"); sleep(1);
             runThisAction("DIRLIST"); sleep(1);
             runThisAction("OBJECTS"); sleep(1);
+            runThisAction("CLEANYAML"); sleep(1);
+            runThisAction("PARSEYAML"); sleep(1);
             runThisAction("ASSETS"); sleep(1);
             runThisAction("XMLITEMS"); sleep(1);
             runThisAction("BUILDMRSS"); sleep(1);

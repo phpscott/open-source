@@ -98,6 +98,12 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         case "buildmrss": //step 8
             runThisAction("BUILDMRSS");
             break;
+        case "pullsubtitles":
+            runThisAction("DOWNCAPTIONS");
+            break;
+        case "pullimages": 
+            runThisAction("DOWNIMAGES");
+            break;
 
         
         // compiled groups of cases    

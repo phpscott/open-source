@@ -420,8 +420,8 @@ function buildMRSSItem ($singleItem)
             $itemString .= '<media:keywords>'.$keywordString.'</media:keywords>';
         endif;
         if (array_key_exists("media:thumbnail:url", $singleItem["image"])) :
-            $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : "" ;
-            $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : "" ;
+            $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : ' width="1080"' ;
+            $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : ' height="720"' ;
             $itemString .= '<media:thumbnail url="'.$GLOBALS['fpi']['http_root_prefix'].$singleItem["image"]["media:thumbnail:url"].'"'.$width.$height.' />';
         endif;            
         if (array_key_exists("media:category", $singleItem) && is_array($singleItem["media:category"])) :
@@ -446,7 +446,7 @@ function buildMRSSItem ($singleItem)
         endif;
         if (array_key_exists("media:subtitle:url", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:url"] !== null) :
             $lang = (array_key_exists("media:subtitle:lang", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:lang"] !== null) ? ' lang="'.$singleItem["caption"]["media:subtitle:lang"].'"' : "" ;
-            $type = (array_key_exists("media:subtitle:type", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:type"] !== null) ? ' type="'.$singleItem["caption"]["media:subtitle:type"].'"' : "" ;
+            $type = ' type="application/x-subrip"'; //(array_key_exists("media:subtitle:type", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:type"] !== null) ? ' type="'.$singleItem["caption"]["media:subtitle:type"].'"' : "" ;
             $itemString .= '<media:subtitle url="'.$GLOBALS['fpi']['http_root_prefix'].$singleItem["caption"]["media:subtitle:url"].'"'.$lang.$type.' />';
         endif; 
         $itemString .= (array_key_exists("media:source_id", $singleItem)) ? '<media:source_id>'.$singleItem["media:source_id"].'</media:source_id>':'';
@@ -708,6 +708,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $xmlitem = array();
     $xmlitem["meta"] = array();
     $postingest = array();
+    $postingest['folder'] = $folder;
     $matchSkuID = $asset['sku'];
     // extract director, actors into description.
     $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
@@ -841,7 +842,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
             {
                 $xmlitem["meta"]['media_type'] = "trailer";
                 $xmlitem["meta"]['trailer_for'] = $asset['sku'];
-                
+                $xmlitem['media:title'] = "Trailer: ".$xmlitem['media:title'];
                 $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"]["$matchSkuID"]["trailer"];
                 $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" : "";
                 $xmlitem['media:source_id']         = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" :  "";
