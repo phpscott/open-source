@@ -1,7 +1,7 @@
 <?php ini_set('display_errors', 1); // set this to 0 when running production
 
 define('BASEPATH', dirname(__FILE__));
-require (BASEPATH."/lib/core.php");
+require (BASEPATH."/lib/func.php");
 
 /************* ACTIONS LIST ************************************************************/
 // run the specific function/action based on the input

@@ -1,0 +1,17 @@
+{
+    "event": "category.create",
+    "message_body": {
+        "_id": "62d8b017ffd31f000121d6c3",
+        "created_at": "2022-07-20T21:47:03.134-04:00",
+        "friendly_title": null,
+        "site_id": "62d8b017ffd31f000121d6c4",
+        "title": "Category5",
+        "updated_at": "2022-07-20T21:47:03.135-04:00",
+        "values": [
+            "sit",
+            "voluptatem",
+            "distinctio",
+            "ipsum"
+        ]
+    }
+}

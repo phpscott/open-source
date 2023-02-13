@@ -1,15 +1,17 @@
 {
-    "config_name": "default",
-    "data_folder": "data/default/",
+    "config_name": "mirrordog",
+    "data_folder": "data/mirrordog/",
     "new_data_onrun": "false",
     "sess_data_folder": "sessions/",
-    "root_prefix": "",
+    "root_prefix": "filmhub/",
     "local_s3": "local",
-    "http_root_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
-    "http_uri_prefix": "https://zype-filmhub.s3.us-west-2.amazonaws.com/",
-    "s3Bucket": "zype-filmhub",
+    "http_root_prefix": "https://mirrordog-films-prod.s3.us-east-1.amazonaws.com/filmhub/",
+    "http_uri_prefix": "https://mirrordog-films-prod.s3.us-east-1.amazonaws.com/filmhub/",
+    "s3Bucket": "mirrordog-films-prod",
     "dirLocation": "dir",
-    "dirFile": "s3_dir",
+    "dirFile": "mirrordog",
+    "s3_config_dir": "s3conf/",
+    "zype_conf_dir":"", 
     "badskuidsFile": "invalid_skuids.json",
     "skuidsFile": "valid_skuids.json",
     "allskuidsFile": "all_skuids.json",
@@ -20,6 +22,11 @@
     "xmlItemTrailerFile": "_trailer_xmlitem.json",
     "mrssXMLItem": "_xml.xml",
     "yamlJSONFile": "_yaml.json",
+    "filesJSONFile": "_files.json",
+    "video_ext": [".mov", ".mp4"],
+    "image_ext": [".png", ".jpg"],
+    "cc_ext": [".srt"],
+    "yaml_ext": ["yaml", ".yml"],
     "dir": {
         "YMLJSON": "yaml_json/",
         "CLEANYAML": "yaml_clean/",
@@ -33,12 +40,10 @@
         "BADSKUIDS": "badskuids/",
         "MRSSITEMS": "mrssitems/",
         "MRSSIMPORT": "mrssimport/",
-        "POSTINGEST": "postingest/"
-    },
-    "video_ext": [".mov", ".mp4"],
-    "image_ext": [".png", ".jpg"],
-    "cc_ext": [".srt"],
-    "yaml_ext": ["yaml", ".yml"],
+        "POSTINGEST": "postingest/",
+        "CAPTIONS": "captions/",
+        "FILES": "files/"
+    },    
     "genre_folders": {
         "Action/Adventure": "mrssitems/actionadventure/",
         "Animation": "mrssitems/animation/",
@@ -59,6 +64,5 @@
         "Unknown": "mrssitems/unknown/",
         "War": "mrssitems/war/",
         "Western": "mrssitems/western/"
-    },
-    "s3_config_dir": "s3conf/"
+    }
 }

@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 require(BASEPATH."/lib/vars.php");
-require(BASEPATH."/lib/zype/Zype.php");
+//require(BASEPATH."/lib/zype/Zype.php");
 
 /************* FUNCTIONS LIST ************************************************************/
 # load the json config. todo: allow different configs/paths to be loaded via param

@@ -1,0 +1,17 @@
+{
+    "event": "category.update",
+    "message_body": {
+        "_id": "62d8b01885958f0001dc7d6e",
+        "created_at": "2022-07-20T21:47:04.370-04:00",
+        "friendly_title": null,
+        "site_id": "62d8b01885958f0001dc7d6f",
+        "title": "Category2",
+        "updated_at": "2022-07-20T21:47:04.370-04:00",
+        "values": [
+            "perspiciatis",
+            "maxime",
+            "quis",
+            "ipsum"
+        ]
+    }
+}
