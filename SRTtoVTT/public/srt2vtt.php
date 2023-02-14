@@ -20,8 +20,8 @@ if (false !== $secure_feed)
     $output = $st->outputVTT();
     if ($output !== "" && $output !== false)
     {
-        //header ("Content-Type: application/vtt");
-        echo "WEBVTT"."\r\n".trim($output);
+        header ("Content-Type: text/plain");
+        echo "WEBVTT"."\r\n\r\n".trim($output);
     }
 }
 else
