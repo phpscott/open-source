@@ -110,6 +110,24 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("XMLITEMS"); sleep(1);
             runThisAction("BUILDMRSS"); sleep(1);
             break;
+        case "fullzype": // presumes an API call, but can be superceded with a valid -s value.
+            runThisAction("BUILD");
+            if (false === $GLOBALS['mcon']['passedvalidlist']):
+                runThisAction("ZYPECONFIG",$options);
+                runThisAction("SETZYPEENVVAR");
+                runThisAction("ZYPEVIDEOLIST");  sleep(2);
+            else:
+                echo "\n\nSKIPPING: S3 List Generation; Valid List File Found\n";
+            endif;
+            runThisAction("CLEANHOUSE"); sleep(1);
+            runThisAction("DIRLIST"); sleep(1);
+            runThisAction("OBJECTS"); sleep(1);
+            // runThisAction("CLEANYAML"); sleep(1);
+            // runThisAction("PARSEYAML"); sleep(1);
+            runThisAction("ASSETS"); sleep(1);
+            runThisAction("XMLITEMS"); sleep(1);
+            runThisAction("BUILDMRSS"); sleep(1);
+            break;
         default:
             echo "\nERROR:\nNo Valid Action Found\n\n"; exit;
             exit;

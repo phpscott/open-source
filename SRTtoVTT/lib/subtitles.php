@@ -1,6 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 // https://github.com/lutian/phpEditSubtitles
+
 class phpEditSubtitles {
 	
 	private $version = '1.1';

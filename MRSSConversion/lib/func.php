@@ -376,13 +376,25 @@ function cleanHouse ()
     {
         $output = null; $retval = null;
         $path = $GLOBALS['mcon']['data_folder'].$folder;
-        if ($title !== "DIRLIST" && $title !== "MRSSITEMS"):
-            exec('rm -f '.$path."/*", $output, $retval);
-            $cleanHouse['dir'] = $output;
-        elseif ($title == "MRSSIMPORT"):
+        if ($title == "MRSSIMPORT"):
             exec('rm -f '.$path."/*.xml", $output, $retval);
             $cleanHouse['mrss'] = $output;
-        endif;
+        elseif ($title == "CAPTIONS"):
+            $dirs = array_filter(glob($path."*"), 'is_dir');
+            foreach ($dirs as $key => $dir)
+            {
+                $output = null; $retval = null;
+                exec('rm -Rfd '.$dir, $output, $retval);
+                $cleanHouse['mrss'] = $output;
+            }
+            exit;
+        elseif ($title == "FILES"):
+            exec('rm -f '.$path."/*.json", $output, $retval);
+            $cleanHouse['mrss'] = $output;
+        elseif ($title !== "DIRLIST" && $title !== "MRSSITEMS"):
+            exec('rm -f '.$path."/*", $output, $retval);
+            $cleanHouse['dir'] = $output;            
+        endif;        
     }    
 }
 # function to build the mrss file, using xmlitems
@@ -399,7 +411,7 @@ function buildMRSS ($folders)
             removeThisFile ($mrsspath.$mrssFile);
             $itemString = '<rss xmlns:media="https://search.yahoo.com/mrss/" xmlns:dcterms="https://purl.org/dc/terms/" version="2.0">';
             $itemString .= '<channel>';
-            $itemString .= '<title>'.$title.'</title>';
+            $itemString .= '<title>'.str_replace("&", "&amp;", $title).'</title>';
             $itemString .= '<link/>';
             $itemString .= '<description/>';
             writeThisSegment ($itemString,$mrsspath,$mrssFile);
@@ -441,10 +453,10 @@ function parseXMLITEMS ($path)
 # build a single xml item using mrss element names and include additional metadata for parsing later
 function buildMRSSItem ($singleItem)
 {
-    //echo "\tRunning: buildMRSSItem()\n";
     $sourceID = (array_key_exists('media:source_id', $singleItem)) ? $singleItem["media:source_id"] : false ;
     $itemString = '<item>';
-        $itemString .= (array_key_exists("media:title", $singleItem)) ? '<title>'.$singleItem["media:title"].'</title>':'<title/>';
+        $itemString .= (array_key_exists("media:title", $singleItem)) ? '<title>'.str_replace("&", "&amp;", $singleItem["media:title"]).'</title>':'<title/>';
+        //str_replace(array(" | ","&"), array(", ","&amp;"), $singleItem["media:title"]);
         $itemString .= (array_key_exists("item:guid", $singleItem)) ? '<guid>'.$singleItem["item:guid"].'</guid>':'<guid/>';
         $itemString .= "<link/>";
         $itemString .= (array_key_exists("item:pubDate", $singleItem)) ? '<pubDate>'.date("D, j M Y", mktime(0, 0, 1, 1, 1, $singleItem["item:pubDate"])).' 01:01:01</pubDate>':'';
@@ -455,16 +467,17 @@ function buildMRSSItem ($singleItem)
             $height = (array_key_exists("media:content:height", $singleItem["video"])) ? ' height="'.$singleItem["video"]["media:content:height"].'"' : "" ;
             $itemString .= '<media:content url="'.$GLOBALS['mcon']['http_root_prefix'].$singleItem["video"]["media:content:url"].'"'.$duration.$width.$height.'>';
         endif;
-        $itemString .= (array_key_exists("media:title", $singleItem)) ? '<media:title>'.$singleItem["media:title"].'</media:title>' :'';
-        $itemString .= (array_key_exists("media:description", $singleItem)) ? '<media:description>'.$singleItem["media:description"].'</media:description>' :'';
+        $itemString .= (array_key_exists("media:title", $singleItem)) ? '<media:title>'.str_replace("&", "&amp;", $singleItem["media:title"]).'</media:title>' :'';
+        $itemString .= (array_key_exists("media:description", $singleItem)) ? '<media:description>'.str_replace("&", "&amp;", $singleItem["media:description"]).'</media:description>' :'';
         // keywords loop
         if (array_key_exists("media:keywords", $singleItem)) :
             $keywordString = implode(",", $singleItem["media:keywords"]);
+            $keywordString = str_replace("&", "&amp;", $keywordString);
             $itemString .= '<media:keywords>'.$keywordString.'</media:keywords>';
         endif;
         if (array_key_exists("media:thumbnail:url", $singleItem["image"])) :
-            $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : "" ;
-            $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : "" ;
+            $width = (array_key_exists("media:thumbnail:width", $singleItem["image"])) ? ' width="'.$singleItem["image"]["media:thumbnail:width"].'"' : ' width="1080"' ;
+            $height = (array_key_exists("media:thumbnail:height", $singleItem["image"])) ? ' height="'.$singleItem["image"]["media:thumbnail:height"].'"' : ' height="720"' ;
             $itemString .= '<media:thumbnail url="'.$GLOBALS['mcon']['http_root_prefix'].$singleItem["image"]["media:thumbnail:url"].'"'.$width.$height.' />';
         endif;            
         if (array_key_exists("media:category", $singleItem) && is_array($singleItem["media:category"])) :
@@ -476,16 +489,16 @@ function buildMRSSItem ($singleItem)
                 $catExplode = ($pos !== false) ? explode("|", $value) : $value;              
                 if (is_array($catExplode) && count($catExplode) > 1):
                     if (trim($catExplode['0']) == $singleItem["channel:title"]):
-                        $catString .= $catExplode['1'].",";
+                        $catString .= str_replace(array(" | ","&"), array(", ","&amp;"), $catExplode['1']).","; //$catExplode['1'].",";
                     else:
-                        $metaString .= $value.",";
+                        $metaString .= str_replace(array(" | ","&"), array(", ","&amp;"), $value).",";
                     endif;
                 else:
-                    $metaString .= $value.","; 
+                    $metaString .= str_replace(array(" | ","&"), array(", ","&amp;"), $value).",";
                 endif;
             }
             $itemString .= (trim($catString) !== "") ? '<media:category>'.rtrim(trim($catString),",").'</media:category>' : '';
-            $itemString .= ($metaString !== "") ? '<meta name="media:category:genres" value="'.rtrim(trim($metaString),",").'"/>' : '';
+            $itemString .= ($metaString !== "") ? '<meta name="categories" value="'.rtrim(trim($metaString),",").'"/>' : '';
         endif;
         if (array_key_exists("media:subtitle:url", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:url"] !== null) :
             $lang = (array_key_exists("media:subtitle:lang", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:lang"] !== null) ? ' lang="'.$singleItem["caption"]["media:subtitle:lang"].'"' : "" ;
@@ -501,14 +514,15 @@ function buildMRSSItem ($singleItem)
         $itemString .= (array_key_exists("media:episode", $singleItem)) ? '<media:episode>'.$singleItem["media:episode"].'</media:episode>':'';
         if (array_key_exists("meta", $singleItem) && count($singleItem) >= 1)
         {
-            $itemString .= (array_key_exists("media_type", $singleItem["meta"])) ? '<meta name="media_type" value="'.$singleItem["meta"]["media_type"].'"/>' : '';
-            $itemString .= (array_key_exists("genre", $singleItem["meta"])) ? '<meta name="genre" value="'.$singleItem["meta"]["genre"].'"/>' : '';
-            $itemString .= (array_key_exists("tagline", $singleItem["meta"])) ? '<meta name="tagline" value="'.$singleItem["meta"]["tagline"].'"/>' : '';
-            $itemString .= (array_key_exists("copyright", $singleItem["meta"])) ? '<meta name="copyright" value="'.$singleItem["meta"]["copyright"].'"/>' : '';
-            $itemString .= (array_key_exists("studio", $singleItem["meta"])) ? '<meta name="studio" value="'.$singleItem["meta"]["studio"].'"/>' : '';
-            $itemString .= (array_key_exists("imdb_id", $singleItem["meta"])) ? '<meta name="imdb_id" value="'.$singleItem["meta"]["imdb_id"].'"/>' : '';
-            $itemString .= (array_key_exists("production_companies", $singleItem["meta"]) && is_array($singleItem["meta"]["production_companies"])) ? '<meta name="production_companies" value="'.implode(",", $singleItem["meta"]["production_companies"]).'"/>' : '';
-            $itemString .= (array_key_exists("chapters", $singleItem["meta"]) && is_array($singleItem["meta"]["chapters"])) ? '<meta name="chapters" value="'.implode(",", $singleItem["meta"]["chapters"]).'"/>' : '';            
+            //str_replace("&", "&amp;", $singleItem["media:title"])
+            $itemString .= (array_key_exists("media_type", $singleItem["meta"])) ? '<meta name="media_type" value="'.str_replace("&", "&amp;", $singleItem["meta"]["media_type"]).'"/>' : '';
+            $itemString .= (array_key_exists("genre", $singleItem["meta"])) ? '<meta name="genre" value="'.str_replace("&", "&amp;", $singleItem["meta"]["genre"]).'"/>' : '';
+            $itemString .= (array_key_exists("tagline", $singleItem["meta"])) ? '<meta name="tagline" value="'.str_replace("&", "&amp;", $singleItem["meta"]["tagline"]).'"/>' : '';
+            $itemString .= (array_key_exists("copyright", $singleItem["meta"])) ? '<meta name="copyright" value="'.str_replace("&", "&amp;", $singleItem["meta"]["copyright"]).'"/>' : '';
+            $itemString .= (array_key_exists("studio", $singleItem["meta"])) ? '<meta name="studio" value="'.str_replace("&", "&amp;", $singleItem["meta"]["studio"]).'"/>' : '';
+            $itemString .= (array_key_exists("imdb_id", $singleItem["meta"])) ? '<meta name="imdb_id" value="'.str_replace("&", "&amp;", $singleItem["meta"]["imdb_id"]).'"/>' : '';
+            $itemString .= (array_key_exists("production_companies", $singleItem["meta"]) && is_array($singleItem["meta"]["production_companies"])) ? '<meta name="production_companies" value="'.str_replace("&", "&amp;", implode(",", $singleItem["meta"]["production_companies"])).'"/>' : '';
+            $itemString .= (array_key_exists("chapters", $singleItem["meta"]) && is_array($singleItem["meta"]["chapters"])) ? '<meta name="chapters" value="'.str_replace("&", "&amp;", implode(",", $singleItem["meta"]["chapters"])).'"/>' : '';            
         }      
         $itemString .= '</media:content>';
     $itemString .= '</item>';  
@@ -635,6 +649,7 @@ function parseRawDIRLIST ($file, $dir)
 
     # Iterate over the file in DIRLIST
     $path = $GLOBALS['mcon']['data_folder'].$dir;
+    //echo $path.$file; exit;
     $lines = (is_file($path.$file) === true) ? file($path.$file) : false;
     $dataArray = array();
     $skuidsArray = array();
@@ -892,7 +907,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
             {
                 $xmlitem["meta"]['media_type'] = "trailer";
                 $xmlitem["meta"]['trailer_for'] = $asset['sku'];
-                
+                $xmlitem['media:title']             = "Trailer: ".$xmlitem['media:title'];
                 $xmlitem["video"]['media:content:url'] = $folder.$filesArray["videos"]["$matchSkuID"]["trailer"];
                 $xmlitem['item:guid']               = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" : "";
                 $xmlitem['media:source_id']         = (array_key_exists("sku", $asset)) ? $asset['sku']."-T" :  "";
