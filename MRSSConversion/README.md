@@ -19,40 +19,18 @@ The script will iterate over a file output of directory listings of an S3 Bucket
 #### SETUP
 To use this script follow the below steps to get started
 
-- Copy the mcon.php file into a directory.
+- Copy the mcon.php file into a directory. (along with required lib files).
 - Create a directory next to the php file called "conf"
 - Create a directory next to the php file called "s3conf"
-- Copy the "conf/defaut.json" from the repo into the "conf" directory.
-- Copy the "s3conf/defaut.json" from the repo into the "s3conf" directory.
+- Create a directory next to the php file called "zypeconf"
+- Copy the "conf/defaut.txt" from the repo into the "conf" directory renaming to a json extension (name should be the same for all configs)
+- Copy the "s3conf/defaut.txt" from the repo into the "s3conf" directory renaming to a json extension (name should be the same for all configs)
+- Copy the "zypeconf/defaut.txt" from the repo into the "s3conf" directory renaming to a json extension (name should be the same for all configs).
 - Update the "conf/defaut.json" you copied down to match your settings/paths. 
+- Update the "zypeconf/defaut.json" you copied down to match your settings/paths. 
 - Update the "s3conf/defaut.json" you copied down to include your aws settings. 
     - Note: The bucket is defined on the "conf/default.json" file, and can also be passed as an option to the script.
 - Run the sysinit flag to verify you have the required modules installed.
-
-**Script Flow:**
-
-When the script is run, a Configuration file is loaded from conf/.
-The configuration is a JSON file that represents the paths/uris where content will be reflected in the MRSS.
-
-- **Step 1:** Read in a directory list of the aws bucket, saved as a flat file to: dirFile in DIRLIST
-
-> UPDATE: This script can now be configured to use the AWS CLI to generate the dirFile.
-> See S3 Actions below and Examples Runs for more details.
-
-- **Step 2:** Iterate over the directory list and identify YAML files.
-
-- **Step 3:** Extract/Download YAML file and store locally as YAML and JSON, build objects file with yaml ids/file paths
-
-- **Step 4:** Read in Object file and iterate over it, building XML items (movies/episodes, trailers, series)
-    - Detailed mapping data in external document.
-    - Fields mapped into <item> elements stored as JSON for final iteration
-
-- **Step 5:** Read in each directory of items (movies/episodes, trailers, series). 
-    - Iterate over each and convert from json into xml and store inside genre folder (Filmhub genres used as primary category).
-    - Do this with trailers and series objects (parent to episodes) and build as individual items for mapping post ingest
-
-- **Step 6:** Read in each genre directory and iterate over each file (represents a single video)
-    - Build MRSS Import file compliant to https://support.zype.com/hc/en-us/articles/115011037147-MRSS-Feed-Import
 
 #### The following list of directories are required to be configured.
 `Please note some directories need chmod 777 to be written to or cleaned`
@@ -103,6 +81,7 @@ This section was extracted directly from the conf/default.json example.
     - "Animation": "mrssitems/animation/",
     - "Comedy": "mrssitems/comedy/",
     - "Crime": "mrssitems/crime/",
+    - "Drama": "mrssitems/drama/",
     - "Documentary": "mrssitems/documentary/",
     - "Fantasy": "mrssitems/fantasy/",
     - "Horror": "mrssitems/horror/",
