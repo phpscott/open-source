@@ -5,6 +5,17 @@ This script is available as is and without warranty.
 - Author: Scott Cliburn
 - open-source/MRSSConversion
 
+### OVERVIEW    
+The scripts privided here will read in a complete release of Filmhub Single Work and Series Packages in YAML and map them to the Zype MRSS Import schema.
+- https://support.zype.com/hc/en-us/articles/115011037147-MRSS-Feed-Import
+
+The script will iterate over a file output of directory listings of an S3 Bucket and download and parse the YAML which includes:
+- metadata
+- images
+- video
+- closed caption files
+
+
 #### SETUP
 To use this script follow the below steps to get started
 

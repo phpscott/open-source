@@ -81,15 +81,17 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         
         // compiled groups of cases    
         case "full": // creates new session, or uses the default config, or passed variable, if no list is config, and nothing passed it will end.
-            runThisAction("BUILD");
-            runThisAction("CLEANHOUSE"); sleep(1);
-            runThisAction("DIRLIST"); sleep(1);
-            runThisAction("OBJECTS"); sleep(1);
-            runThisAction("CLEANYAML"); sleep(1);
-            runThisAction("PARSEYAML"); sleep(1);
-            runThisAction("ASSETS"); sleep(1);
-            runThisAction("XMLITEMS"); sleep(1);
-            runThisAction("BUILDMRSS"); sleep(1);
+            // runThisAction("SYSINIT");
+            runThisAction("BUILD"); // build
+            runThisAction("CLEANHOUSE"); sleep(1); // clean
+            runThisAction("DIRLIST"); sleep(1); // readdir
+            runThisAction("OBJECTS"); sleep(1); // objects
+            runThisAction("CLEANYAML"); sleep(1); // cleanyaml
+            runThisAction("PARSEYAML"); sleep(1); // parseyaml
+            runThisAction("ASSETS"); sleep(1); //assets
+            runThisAction("XMLITEMS"); sleep(1); // xmlitems
+            runThisAction("BUILDMRSS"); sleep(1); // buildmrss
+            runThisAction("DOWNCAPTIONS"); // pullcaptions
             break;
         case "fulls3": // presumes an S3 run, but can be superceded with a valid -s value.
             runThisAction("BUILD");
@@ -109,6 +111,7 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
             runThisAction("ASSETS"); sleep(1);
             runThisAction("XMLITEMS"); sleep(1);
             runThisAction("BUILDMRSS"); sleep(1);
+            runThisAction("DOWNCAPTIONS");
             break;
         case "fullzype": // presumes an API call, but can be superceded with a valid -s value.
             runThisAction("BUILD");
