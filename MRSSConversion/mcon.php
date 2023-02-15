@@ -81,7 +81,7 @@ if (is_array($options) && !empty($options) && count($options) > 1 && $options['a
         
         // compiled groups of cases    
         case "full": // creates new session, or uses the default config, or passed variable, if no list is config, and nothing passed it will end.
-            // runThisAction("SYSINIT");
+            // runThisAction("SYSINIT"); //sysinit
             runThisAction("BUILD"); // build
             runThisAction("CLEANHOUSE"); sleep(1); // clean
             runThisAction("DIRLIST"); sleep(1); // readdir
@@ -142,9 +142,24 @@ else
     echo "\nERROR:\nNo Configuration Found\nOR\nNo Valid Action Found\n\n"; exit;
 }
 /* 
-php mcon.php -c mirrordog -a all -s 20230502111037
-php mcon.php -c mirrordog -a full
-php mcon.php -c mirrordog -a full -s 20230502111037
-php mcon.php -c mirrordog -a fulls3
-php mcon.php -c mirrordog -a fulls3 -s 20230502111037
+    php mcon.php -c mirrordog -a all -s 20230502111037
+    php mcon.php -c mirrordog -a full
+    php mcon.php -c mirrordog -a full -s 20230502111037
+    php mcon.php -c mirrordog -a fulls3
+    php mcon.php -c mirrordog -a fulls3 -s 20230502111037
 */
+
+// php mcon.php -c mirrordog -a {action}
+// ACTIONS:
+// sysinit
+// build
+// clean
+// upload the directory list: name it to match this config value: dirFile (remove the .txt and it must have a .txt extension)
+// readdir
+// objects
+// cleanyaml
+// parseyaml
+// assets
+// xmlitems
+// buildmrss
+// pullcaptions

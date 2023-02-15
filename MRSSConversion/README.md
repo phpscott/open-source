@@ -137,9 +137,12 @@ The following actions are available and must be run in order:
 2. "clean": This will clean all directories that are cleaned on a full run.
 3. "reddir": This will read the directory flat file that represents an S3 Bucket, and build paths/skuids.
 4. "objects": This will read the skuids and validate them, and pull down YAML files for each skuid (single works/series)
-5. "assets": This will parse the YAML files for each skuid and build JSON with mrss field names.
-6. "xmlitems": This will take the JSON with MRSS field names and create actual MRSS <item>s and store them as XML.
-7. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
+5. "parseyaml": TBD
+6. "cleanyaml": TBD
+7. "assets": This will parse the YAML files for each skuid and build JSON with mrss field names.
+8. "xmlitems": This will take the JSON with MRSS field names and create actual MRSS <item>s and store them as XML.
+9. "buildmrss": This will take the MRSS items in XML format and build complete MRSS files based on Filmhub Genres (main).
+10. "pullcaptions": TBD
 
 **Additional Actions**
 
@@ -176,6 +179,36 @@ Some of the following actions will require the AWS CLI to be installed.
 > NOTE: You should consider piping the output to a log file. There are many informative echo statements that can be used for auditing.
 
 `php mcon.php -c default -a fulls3 > mylog.log`
+
+**Complete Run Example: Individual Calls**
+
+> NOTE: You should have pulled down the repo, and have created a directory called data with a chmod 0777 already
+
+> NOTE: You should have also created the configuration file using the default.txt example in conf/ already
+
+`php mcon.php -c mirrordog -a sysinit`
+
+`php mcon.php -c mirrordog -a build`
+
+`php mcon.php -c mirrordog -a clean`
+
+> NOTE: You should upload the directory list file at this time: name it to match this config value: dirFile (remove the .txt and it must have a .txt extension)
+
+`php mcon.php -c mirrordog -a readdir`
+
+`php mcon.php -c mirrordog -a objects`
+
+`php mcon.php -c mirrordog -a cleanyaml`
+
+`php mcon.php -c mirrordog -a parseyaml`
+
+`php mcon.php -c mirrordog -a assets`
+
+`php mcon.php -c mirrordog -a xmlitems`
+
+`php mcon.php -c mirrordog -a buildmrss`
+
+`php mcon.php -c mirrordog -a pullcaptions`
 
 #### Modules Installed ####
 
