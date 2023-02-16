@@ -152,7 +152,7 @@ class phpEditSubtitles {
 	*/
 	private function dumpSubtitles() {
 		$dump = '';
-		for($i=1;$i<count($this->subtitles);$i++) {
+		for($i=1;$i<=count($this->subtitles);$i++) {
 			if($this->type == 'srt'): $dump .= $i."\r"; endif;
 			$this->subtitles[$i]['time_ini'] = $this->convertType($this->subtitles[$i]['time_ini']);
 			$this->subtitles[$i]['time_end'] = $this->convertType($this->subtitles[$i]['time_end']);

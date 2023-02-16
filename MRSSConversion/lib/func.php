@@ -510,8 +510,8 @@ function buildMRSSItem ($singleItem)
             }
             $captionsConversion = ("true" === $GLOBALS['mcon']['convertCaptions'] && array_key_exists("convertCaptionsUrl", $GLOBALS['mcon'])) ? $GLOBALS['mcon']['convertCaptionsUrl'].$captionURI : $captionURI;
             $lang = (array_key_exists("media:subtitle:lang", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:lang"] !== null) ? ' lang="'.$singleItem["caption"]["media:subtitle:lang"].'"' : "" ;
-            $type = (array_key_exists("media:subtitle:type", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:type"] !== null) ? ' type="'.$captionType.'"' : "" ;
-            
+            //$type = (array_key_exists("media:subtitle:type", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:type"] !== null) ? ' type="'.$captionType.'"' : "" ;
+            $type = "";
 
             $itemString .= '<media:subtitle url="'.$captionsConversion.'"'.$lang.$type.' />';
         endif; 
