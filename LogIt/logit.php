@@ -1,7 +1,7 @@
 <?php ini_set('display_errors', 0);
 
 define('BASEPATH', dirname(__FILE__));
-require (BASEPATH."/config.php");
+require (BASEPATH."/config/config.php");
 $get_siteid = trim(filter_input(INPUT_GET, 'siteid', FILTER_SANITIZE_SPECIAL_CHARS));
 $siteid = (false !== $get_siteid && $get_siteid !== "" && $get_siteid !== null && array_key_exists($get_siteid, $valid_siteids)) ? $get_siteid : false ;
 
