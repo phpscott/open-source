@@ -504,14 +504,9 @@ function buildMRSSItem ($singleItem)
 
             $captionType = ("true" === $GLOBALS['mcon']['convertCaptions'] && array_key_exists("media:subtitle:type", $singleItem["caption"])) ? convertType($singleItem["caption"]["media:subtitle:type"]) : $singleItem["caption"]["media:subtitle:type"];
             $captionURI = ("true" === $GLOBALS['mcon']['convertCaptions']) ? urlencode($GLOBALS['mcon']['http_root_prefix'].$singleItem["caption"]["media:subtitle:url"]) : $GLOBALS['mcon']['http_root_prefix'].$singleItem["caption"]["media:subtitle:url"];
-            if ("true" === $GLOBALS['mcon']['convertCaptions'] && array_key_exists("convertCaptionsUrl", $GLOBALS['mcon']))
-            {
-                //echo $captionURI."\n\n"; exit;
-            }
             $captionsConversion = ("true" === $GLOBALS['mcon']['convertCaptions'] && array_key_exists("convertCaptionsUrl", $GLOBALS['mcon'])) ? $GLOBALS['mcon']['convertCaptionsUrl'].$captionURI : $captionURI;
             $lang = (array_key_exists("media:subtitle:lang", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:lang"] !== null) ? ' lang="'.$singleItem["caption"]["media:subtitle:lang"].'"' : "" ;
             $type = (array_key_exists("media:subtitle:type", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:type"] !== null) ? ' type="'.$captionType.'"' : "" ;
-            //$type = "";
 
             $itemString .= '<media:subtitle url="'.$captionsConversion.'"'.$lang.$type.' />';
         endif; 
