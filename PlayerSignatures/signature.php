@@ -9,16 +9,16 @@ $global_vars                = filter_input_array(INPUT_SERVER);
 $video_zype_ipaddress       = $global_vars['REMOTE_ADDR'];
 
 // set your secret signature key: found in your Account > Settings
-$video_zype_signkey         = "16e74167817647fc662f59415093991b16684e365ff6ff890d0226e100de99ca70bbb55653b15d93c1cd9a65251c5dcd001283576620d344e6a1ae6d6d5a93fb";
+$video_zype_signkey         = ""; // secret id
 // this needs to be set to your Player API Key, or your APP Key
-$video_zype_apikey          = "RB8X6RGMeaAECzr0FTod7qmR5fz4sOlYcavgxpPJr4OPyzkN"; //"Hjnq5FOyrYkUjSHafUmTrygQuT0d5gdZ5b4gh7nWB6Q9xuPxrQUjL6tjEj4IvwW7";
-$video_zype_appkey          = "cMkLarrujpOpk3GcR7eW2KyeVqsN7cI8aApiqWgmMsDFB0ZI"; //"vtT8PqER1uGznXUtMj9BrVxOCwh5eG1vnjII8He28OQBPMUFf8nsavL3BARRfpPn";
+$video_zype_apikey          = ""; // api_key 
+$video_zype_appkey          = ""; // app_key
 
 // set the method type to generate a signature on, using app_key or api_key
 $video_key_type             = "app"; // set to app or api
 
 // set a static video id for testing
-$video_zypeid               = "63ed5fb9d5a61400013b6187";
+$video_zypeid               = "";
 
 // set the video api url to get the video content, metadata, etc.
 $api_getvideo_url           = 'https://api.zype.com/videos/'.$video_zypeid.'?app_key=' . $video_zype_appkey;
