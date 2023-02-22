@@ -15,7 +15,7 @@ if (isset($siteid) && false !== $siteid)
     $logArray = json_decode($logInput, true);
     $json = json_encode($logArray,JSON_PRETTY_PRINT);
     $logFile = $stamp.".".$logArray['event'].".json";
-    $logPath = BASEPATH."/logs".$valid_siteids[$siteid];
+    $logPath = BASEPATH."/logs".$valid_siteids[$siteid]."/";
     $log = $logPath.$logFile;
     if (!is_file($log))
     {
