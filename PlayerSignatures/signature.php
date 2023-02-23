@@ -1,7 +1,5 @@
-<?php
+<?php ini_set('display_errors', 1); // set this to 0 when running production
 
-// ****************************************************************************
-// ZYPE calculate video signature
 $video_zype_signature       = '';
 $video_zype_timestamp       = floor(microtime(true));
 // get the address of the user viewing the page
@@ -11,14 +9,14 @@ $video_zype_ipaddress       = $global_vars['REMOTE_ADDR'];
 // set your secret signature key: found in your Account > Settings
 $video_zype_signkey         = ""; // secret id
 // this needs to be set to your Player API Key, or your APP Key
-$video_zype_apikey          = ""; // api_key 
+$video_zype_apikey          = ""; // api_key use your player key
 $video_zype_appkey          = ""; // app_key
 
 // set the method type to generate a signature on, using app_key or api_key
-$video_key_type             = "app"; // set to app or api
+$video_key_type             = "api"; // set to app or api
 
 // set a static video id for testing
-$video_zypeid               = "";
+$video_zypeid               = "63e4a2ed5f91df0001c3d64f";
 
 // set the video api url to get the video content, metadata, etc.
 $api_getvideo_url           = 'https://api.zype.com/videos/'.$video_zypeid.'?app_key=' . $video_zype_appkey;
@@ -56,7 +54,7 @@ if ( ! empty( $json_data ) ):
     $zype_signature_array['video_id'] = strval($video_zype_apiid);   
     
     // loop to further sanitize content and urlencode, and lowercase
-    $signature_string = "";
+    $signature_string = array();
     foreach ($zype_signature_array as $param_name => $param_value)
     {
         $param_value = trim(strtolower($param_value));
@@ -84,7 +82,4 @@ if ( ! empty( $json_data ) ):
     <script src="https://player.zype.com/embed/<?php echo $video_zype_apiid; ?>.js?<?php echo $zype_signature_method; ?>&signature=<?php echo trim($video_zype_signature); ?>&ts=<?php echo $zype_signature_array['ts']; ?>" type="text/javascript"></script>    
 
 <?php 
-endif;//END if (!empty($json_data)):
-
-
-// ****************************************************************************
+endif;
