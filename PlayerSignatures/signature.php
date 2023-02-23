@@ -8,12 +8,12 @@ $video_zype_ipaddress       = $global_vars['REMOTE_ADDR'];
 
 // set your secret signature key: found in your Account > Settings
 $video_zype_signkey         = ""; // secret id
-// this needs to be set to your Player API Key, or your APP Key
+// this needs to be set to your Player API Key, and an APP Key
 $video_zype_apikey          = ""; // api_key use your player key
-$video_zype_appkey          = ""; // app_key
+$video_zype_appkey          = ""; // app_key, must be used to access api
 
 // set the method type to generate a signature on, using app_key or api_key
-$video_key_type             = "api"; // set to app or api
+$video_key_type             = "api"; // set to app or api (only used for generation and must match player embed)
 
 // set a static video id for testing
 $video_zypeid               = "63e4a2ed5f91df0001c3d64f";
