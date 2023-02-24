@@ -778,7 +778,7 @@ function getDirector ($crews=false)
         $name               = (array_key_exists("name", $data)) ? $data['name'] : null;
         $credit             = (array_key_exists("credit", $data)) ? $data['credit'] : null;
         if (strtolower($credit) == "director"):
-            $directorString = "Director: ".$name."\\\\r\\\\n"; // &# ;
+            $directorString = $name; // &# ;
             return $directorString;
         endif;
     }
@@ -794,7 +794,7 @@ function getActors ($cast=false)
         $name           = (array_key_exists("name", $data)) ? $data['name'] : null;
         $actorsString .= $name.", ";
     }
-    return ($actorsString !== "") ? "Actors: ". rtrim($actorsString, ", ") : "";
+    return ($actorsString !== "") ? rtrim($actorsString, ", ") : "";
 }
 # map single video to item (both single work and series episodes)
 function mapSingleToItem ($asset,$folder,$series=false)
