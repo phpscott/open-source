@@ -491,7 +491,8 @@ function buildMRSSItem ($singleItem)
                 $catExplode = ($pos !== false) ? explode("|", $value) : $value;              
                 if (is_array($catExplode) && count($catExplode) > 1):
                     if (trim($catExplode['0']) == $singleItem["channel:title"]):
-                        $catString .= str_replace(array(" | ","&"), array(", ","&amp;"), $catExplode['1']).","; //$catExplode['1'].",";
+                        $catString = str_replace(array(" | ","&"), array(", ","&amp;"), $catExplode['1']); //$catExplode['1'].",";
+                        $itemString .= (trim($catString) !== "") ? '<media:category>'.trim($catString).'</media:category>' : '';
                     else:
                         $metaString .= str_replace(array(" | ","&"), array(", ","&amp;"), $value).",";
                     endif;
@@ -499,7 +500,7 @@ function buildMRSSItem ($singleItem)
                     $metaString .= str_replace(array(" | ","&"), array(", ","&amp;"), $value).",";
                 endif;
             }
-            $itemString .= (trim($catString) !== "") ? '<media:category>'.rtrim(trim($catString),",").'</media:category>' : '';
+            
             $itemString .= ($metaString !== "") ? '<meta name="categories" value="'.rtrim(trim($metaString),",").'"/>' : '';
         endif;
         if (array_key_exists("media:subtitle:url", $singleItem["caption"]) && $singleItem["caption"]["media:subtitle:url"] !== null) :
@@ -1004,17 +1005,23 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
         if (false !== $hasMainImage):
             $file = $filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
-            //echo "\n\n".$imgPath."\n\n";
+            list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
+            $itemFiles["image"]['media:thumbnail:width']     = $width;
+            $itemFiles["image"]['media:thumbnail:height']    = $height;   
             $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         elseif (false !== $hasSecondImage):
             $file = $filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
-            //echo "\n\n".$imgPath."\n\n";
+            list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
+            $itemFiles["image"]['media:thumbnail:width']     = $width;
+            $itemFiles["image"]['media:thumbnail:height']    = $height;   
             $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         elseif (false !== $hasOtherMainImage):
             $file = $filesArray["images"]["$matchSkuID"]["other"]["0"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["other"]["0"];
-            //echo "\n\n".$imgPath."\n\n";
+            list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
+            $itemFiles["image"]['media:thumbnail:width']     = $width;
+            $itemFiles["image"]['media:thumbnail:height']    = $height;   
             $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         endif;
         return $itemFiles;
