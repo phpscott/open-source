@@ -775,7 +775,7 @@ function getDirector ($crews=false)
         $name               = (array_key_exists("name", $data)) ? $data['name'] : null;
         $credit             = (array_key_exists("credit", $data)) ? $data['credit'] : null;
         if (strtolower($credit) == "director"):
-            $directorString = "Director: ".$name."\\r\\n";
+            $directorString = "Director: ".$name."&#13;&#10;"; // &# ;
             return $directorString;
         endif;
     }
@@ -805,7 +805,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     // extract director, actors into description.
     $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
     $actorsString           = (array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
-    $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\r\\n" : "").$directorString.$actorsString;
+    $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "&#13;&#10;" : "").$directorString.$actorsString;
     // media
     $xmlitem['channel:title']           = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
