@@ -18,6 +18,7 @@
     "skuidsFile": "valid_skuids.json",
     "allskuidsFile": "all_skuids.json",
     "objectsFile": "all_objects.json",
+    "imgsFile": "all_imgs.json",
     "yamlFile": "_yaml.yml",
     "xmlItemFile": "_xmlitem.json",
     "xmlItemSeriesFile": "_series_xmlitem.json",

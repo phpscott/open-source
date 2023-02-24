@@ -128,6 +128,8 @@ function runThisAction ($type,$options=false)
             $returnArray = parseRawDIRLIST ($GLOBALS['mcon']['stamp'].".txt", $GLOBALS['mcon']['dir']['DIRLIST']);
             // write objects
             writeThisData ($returnArray["data"],$GLOBALS['mcon']['dir']['OBJECTS'],$GLOBALS['mcon']['objectsFile']); 
+            // write imgs
+            writeThisData ($returnArray["imgs"],$GLOBALS['mcon']['dir']['OBJECTS'],$GLOBALS['mcon']['imgsFile']);
             // write skuids
             writeThisData ($returnArray["skuids"],$GLOBALS['mcon']['dir']['SKUIDS'],$GLOBALS['mcon']['allskuidsFile']);
             break;
@@ -662,6 +664,7 @@ function parseRawDIRLIST ($file, $dir)
     //echo $path.$file; exit;
     $lines = (is_file($path.$file) === true) ? file($path.$file) : false;
     $dataArray = array();
+    $imgArray = array();
     $skuidsArray = array();
     // Loop through our array
     if (false === $lines): 
@@ -672,8 +675,9 @@ function parseRawDIRLIST ($file, $dir)
     endif;
     foreach ($lines as $line) 
     {
-        $filetype = substr(trim($line), -5);
-        if ($filetype == ".yaml")
+        $yamltype = substr(trim($line), -5);
+        $imagetype = substr(trim($line), -4);
+        if ($yamltype == ".yaml")
         {
             $array = explode(" ", trim($line));
             $results = array_filter($array,"cleanArrayFilter"); $nodes = array_values($results);   
@@ -689,8 +693,25 @@ function parseRawDIRLIST ($file, $dir)
                 $skuidsArray[] = $skuid;
             }
         }
+        if ($imagetype == ".jpg")
+        {
+            $array = explode(" ", trim($line));
+            $results = array_filter($array,"cleanArrayFilter"); $nodes = array_values($results);   
+            $theFourthIndex = (array_key_exists("3", $nodes)) ? $nodes['3'] : false;
+            // filmhub/knDBA1D4EC_empire_of_dirt_134620/knDBA1D4EC_empire_of_dirt_portrait_3x4.jpg
+            $theFourthIndex = str_replace(array($GLOBALS['mcon']['data_folder'].$GLOBALS['mcon']['root_prefix'],$GLOBALS['mcon']['root_prefix']), "", $theFourthIndex);
+            // knDBA1D4EC_empire_of_dirt_134620/knDBA1D4EC_empire_of_dirt_portrait_3x4.jpg
+            $explodedObject = (false !== $theFourthIndex) ? explode("/", $theFourthIndex) : false;
+            // knDBA1D4EC_empire_of_dirt_134620 / knDBA1D4EC_empire_of_dirt_portrait_3x4.jpg
+            $explodedObjectReverse = array_reverse($explodedObject);
+            $skuid = ($explodedObjectReverse !== false && $explodedObjectReverse['0'] !== "") ? $explodedObjectReverse['0'] : false; 
+            if (false !== $skuid)
+            {
+                $imgArray[$skuid] = $theFourthIndex;
+            }
+        }        
     }
-    return array("data"=>$dataArray,"skuids"=>$skuidsArray);
+    return array("data"=>$dataArray,"imgs"=>$imgArray,"skuids"=>$skuidsArray);
 }
 # parse the dirlist data
 function parseOBJECTS ($file, $uri)
@@ -723,6 +744,10 @@ function parseASSETS ($skuids, $uri)
 {
     echo "\tRunning: parseASSETS()\n";
     $path = $GLOBALS['mcon']['data_folder'];
+    $GLOBALS['mcon']['imgslist'] = loadJSON($path.$GLOBALS['mcon']['dir']['OBJECTS'].$GLOBALS['mcon']['imgsFile']);
+    
+    //print_r($GLOBALS['mcon']['imgslist']); exit;
+    
     foreach ($skuids as $skuid => $folder)
     {
         $file = $skuid.$GLOBALS['mcon']['yamlJSONFile'];
@@ -746,10 +771,10 @@ function getDirector ($crews=false)
     $directorString = "";
     foreach ($crews as $key => $data)
     {
-        $name           = (array_key_exists("name", $data)) ? $data['name'] : null;
-        $credit           = (array_key_exists("credit", $data)) ? $data['credit'] : null;
+        $name               = (array_key_exists("name", $data)) ? $data['name'] : null;
+        $credit             = (array_key_exists("credit", $data)) ? $data['credit'] : null;
         if (strtolower($credit) == "director"):
-            $directorString = "Director: ".$name."\\r\\n";
+            $directorString = "Director: ".$name."\\\\r\\\\n";
             return $directorString;
         endif;
     }
@@ -779,7 +804,7 @@ function mapSingleToItem ($asset,$folder,$series=false)
     // extract director, actors into description.
     $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
     $actorsString           = (array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
-    $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\r\\n" : "").$directorString.$actorsString;
+    $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "\\\\r\\\\n" : "").$directorString.$actorsString;
     // media
     $xmlitem['channel:title']           = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
@@ -977,11 +1002,20 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
             $itemFiles["caption"]['media:subtitle:type']    = "text/plain";
         } 
         if (false !== $hasMainImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
+            $file = $filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
+            $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
+            //echo "\n\n".$imgPath."\n\n";
+            $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         elseif (false !== $hasSecondImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
+            $file = $filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
+            $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
+            //echo "\n\n".$imgPath."\n\n";
+            $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         elseif (false !== $hasOtherMainImage):
-            $itemFiles["image"]["media:thumbnail:url"] = $folder.$filesArray["images"]["$matchSkuID"]["other"]["0"];
+            $file = $filesArray["images"]["$matchSkuID"]["other"]["0"];
+            $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["other"]["0"];
+            //echo "\n\n".$imgPath."\n\n";
+            $itemFiles["image"]["media:thumbnail:url"] = $imgPath;
         endif;
         return $itemFiles;
     }

@@ -7,6 +7,7 @@ $GLOBALS['mcon']['new_data_onrun']   = false; // turn this off to set, so its tu
 $GLOBALS['mcon']['main_data_folder'] = null; // this gets populated if sessions are used.
 $GLOBALS['mcon']['pathispassed']     = false; // another check system on if a previous session is used again.
 $GLOBALS['mcon']['passedvalidlist']  = false; // if the list being used is valid, populate once verified.
+$GLOBALS['mcon']['imgslist']         = array (); // if the list being used is valid, populate once verified.
 // set some functions to check for, quick and dirty
 $GLOBALS['mcon']['sysinit_functions']  = array (
     "EXEC"=>        "exec", // can this exec a command via cmdline? 
