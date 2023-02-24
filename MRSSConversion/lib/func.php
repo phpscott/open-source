@@ -1005,6 +1005,7 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
         if (false !== $hasMainImage):
             $file = $filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["16x9"];
+            echo "\tGetting Main Image Size\n\n";
             list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
             $itemFiles["image"]['media:thumbnail:width']     = $width;
             $itemFiles["image"]['media:thumbnail:height']    = $height;   
@@ -1012,6 +1013,7 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
         elseif (false !== $hasSecondImage):
             $file = $filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["landscape"]["4x3"];
+            echo "\tGetting Secondary Image Size\n\n";
             list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
             $itemFiles["image"]['media:thumbnail:width']     = $width;
             $itemFiles["image"]['media:thumbnail:height']    = $height;   
@@ -1019,6 +1021,7 @@ function mapItemFiles ($filesArray,$matchSkuID,$folder)
         elseif (false !== $hasOtherMainImage):
             $file = $filesArray["images"]["$matchSkuID"]["other"]["0"];
             $imgPath = (array_key_exists($file, $GLOBALS['mcon']['imgslist'])) ? $GLOBALS['mcon']['imgslist'][$file] : $folder.$filesArray["images"]["$matchSkuID"]["other"]["0"];
+            echo "\tGetting Other Image Size\n\n";
             list($width, $height, $type, $attr) = getimagesize($GLOBALS['mcon']['http_root_prefix'].$imgPath);
             $itemFiles["image"]['media:thumbnail:width']     = $width;
             $itemFiles["image"]['media:thumbnail:height']    = $height;   
