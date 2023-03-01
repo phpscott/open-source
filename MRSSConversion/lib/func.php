@@ -175,8 +175,21 @@ function runThisAction ($type,$options=false)
             // iterate over genre folders combining individual items into single mrss (per genre folder)
             buildMRSS ($GLOBALS['mcon']['genre_folders']);
             break;
+        case "UPDATEDESC":
+            echo "\nCreate MRSS; For each GENRE, Combine XML ready for MRSS based on GENRE\n";
+            // iterate over genre folders combining individual items into single mrss (per genre folder)
+            $skuids = parseSKUIDS ($GLOBALS['mcon']['skuidsFile'], $GLOBALS['mcon']['dir']['SKUIDS']);
+            updateDescriptions ($skuids);
+            break;
     }
 }
+# update the description with new lines (only via API)
+# use skuids to get the video id from zype.
+function updateDescriptions ()
+{
+    
+}
+
 # simple round of try and catch
 function systemCheck ()
 {
@@ -470,7 +483,7 @@ function buildMRSSItem ($singleItem)
             $itemString .= '<media:content url="'.$GLOBALS['mcon']['http_root_prefix'].$singleItem["video"]["media:content:url"].'"'.$duration.$width.$height.'>';
         endif;
         $itemString .= (array_key_exists("media:title", $singleItem)) ? '<media:title>'.str_replace("&", "&amp;", $singleItem["media:title"]).'</media:title>' :'';
-        $itemString .= (array_key_exists("media:description", $singleItem)) ? '<media:description>'.str_replace("&", "&amp;", $singleItem["media:description"]).'</media:description>' :'';
+        $itemString .= (array_key_exists("media:description", $singleItem)) ? '<media:description>'.str_replace(array("&","[nl]"), array("&amp;","\r\n\r\n"), $singleItem["media:description"]).'</media:description>' :'';
         // keywords loop
         if (array_key_exists("media:keywords", $singleItem)) :
             $keywordString = implode(",", $singleItem["media:keywords"]);
@@ -778,7 +791,7 @@ function getDirector ($crews=false)
         $name               = (array_key_exists("name", $data)) ? $data['name'] : null;
         $credit             = (array_key_exists("credit", $data)) ? $data['credit'] : null;
         if (strtolower($credit) == "director"):
-            $directorString = $name; // &# ;
+            $directorString = $name."[nl]"; // &# ;
             return $directorString;
         endif;
     }
@@ -806,9 +819,9 @@ function mapSingleToItem ($asset,$folder,$series=false)
     $postingest = array();
     $matchSkuID = $asset['sku'];
     // extract director, actors into description.
-    $directorString         = ""; //(array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
-    $actorsString           = ""; //(array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
-    $descAddOn              = ""; // (($directorString !== "" || $actorsString !== "") ? "&#13;&#10;" : "").$directorString.$actorsString;
+    $directorString         = (array_key_exists("crew", $asset)) ? getDirector($asset['crew']) : "";
+    $actorsString           = (array_key_exists("cast", $asset)) ? getActors($asset['cast']) : "";
+    $descAddOn              = (($directorString !== "" || $actorsString !== "") ? "[nl]" : "").$directorString.$actorsString;
     // media
     $xmlitem['channel:title']           = (array_key_exists("genre", $asset)) ? $asset['genre'] : null;
     $xmlitem['media:title']             = (array_key_exists("title", $asset)) ? $asset['title'] : null;
