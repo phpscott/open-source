@@ -536,8 +536,8 @@ function buildMRSSItem ($singleItem)
         if (array_key_exists("meta", $singleItem) && count($singleItem) >= 1)
         {
             //str_replace("&", "&amp;", $singleItem["media:title"])
-            $itemString .= (array_key_exists("director", $singleItem["meta"])) ? '<meta name="director" value="'.str_replace("&", "&amp;", $singleItem["meta"]["director"]).'"/>' : '';
-            $itemString .= (array_key_exists("actors", $singleItem["meta"])) ? '<meta name="actors" value="'.str_replace("&", "&amp;", $singleItem["meta"]["actors"]).'"/>' : '';
+            $itemString .= (array_key_exists("director", $singleItem["meta"])) ? '<meta name="director" value="'.str_replace(array("&","[nl]"), array("&amp;",""), $singleItem["meta"]["director"]).'"/>' : '';
+            $itemString .= (array_key_exists("actors", $singleItem["meta"])) ? '<meta name="actors" value="'.str_replace(array("&","[nl]"), array("&amp;",""), $singleItem["meta"]["actors"]).'"/>' : '';
             
             $itemString .= (array_key_exists("media_type", $singleItem["meta"])) ? '<meta name="media_type" value="'.str_replace("&", "&amp;", $singleItem["meta"]["media_type"]).'"/>' : '';
             $itemString .= (array_key_exists("genre", $singleItem["meta"])) ? '<meta name="genre" value="'.str_replace("&", "&amp;", $singleItem["meta"]["genre"]).'"/>' : '';
